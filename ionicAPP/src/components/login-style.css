@@ -1,0 +1,53 @@
+.login-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    padding: 0 20px; 
+    box-sizing: border-box;
+}
+
+.login-content .ion-item{
+    width: 100%;
+    max-width: 400px; 
+    margin: 10px 0; 
+}
+
+.login-button, .register-button {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px; 
+}
+
+.or-separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    color: #6c757d;
+}
+
+.or-separator span {
+    background-color: #fff;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.forgot-password-link {
+    margin-top: 10px;
+    font-size: 14px;
+    width: 100%;
+    text-align: right;
+    max-width: 400px;
+}
+
+.social-login-buttons .social-button {
+    margin-top: 10px;
+    width: 100%;
+    max-width: 400px; 
+}
+
+.social-login-buttons {
+    margin-bottom: 20px;
+}

@@ -1,0 +1,8 @@
+{
+  "name": "ionicAPP",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "a215f6a3"
+}
