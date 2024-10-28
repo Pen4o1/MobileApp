@@ -12,11 +12,13 @@ class RegisterController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/'],
-            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/']
+        $first_name_validator = Validator::make($request->all(), [
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/']
         ]);
         
+        $last_name_validator = Validator::make($request->all(),[
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/']
+        ]);
 
         $password_validator = Validator::make($request->all(), [
             'password' => [
@@ -37,12 +39,19 @@ class RegisterController extends Controller
         $email_unique_validator = Validator::make($request->all(), [
             'email' => 'unique:users'
         ]);
-
-        if ($validator->fails()) {
+        
+        if($first_name_validator->fails()){
             return response()->json([
-                'message' => 'Invalid name',
+                'message' => 'Invalid first name',
                 'errors' => $validator->errors()
-            ], 422);
+            ], 422); 
+        }
+
+        if($last_name_validator->fails()){
+            return response()->json([
+                'message' => 'Invalid last name',
+                'errors' => $validator->errors()
+            ], 422); 
         }
 
         if ($password_validator->fails()) {

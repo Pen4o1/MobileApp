@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonLabel, IonText } from '@ionic/react';
-import '../../components/login-style.css'; 
+import '../../components/styles/login-style.css'; 
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');

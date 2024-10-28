@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonText, IonIcon } from '@ionic/react';
 import { eye, eyeOff } from 'ionicons/icons'; 
-import '../../components/register-style.css'; // Ensure the CSS file is imported
+import '../../components/styles/register-style.css';
 
 const RegisterForm: React.FC = () => {
   const [first_name, setFirstName] = useState('');
@@ -80,12 +80,14 @@ const RegisterForm: React.FC = () => {
           <IonInput
             type={showPassword ? 'text' : 'password'} 
             value={password}
+            onIonChange={e => setPassword(e.detail.value!)}
             placeholder="Enter password"
             required
           >
             <IonIcon 
               slot="end" 
               icon={showPassword ? eye : eyeOff} 
+              onClick={() => setShowPassword(!showPassword)}
               aria-hidden="true"
             />
           </IonInput>

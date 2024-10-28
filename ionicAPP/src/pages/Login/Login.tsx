@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonLabel, IonText } from '@ionic/react';
-import '../../components/login-style.css'; 
+import '../../components/styles/login-style.css'; 
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -48,7 +48,7 @@ const Login: React.FC = () => {
         </div>
 
         <IonButton expand="block" fill="outline" className="register-button">
-        <a href="/Register">Create New Account</a>
+        <a href="/register">Create New Account</a>
         </IonButton>
 
         <div className="social-login-buttons">
