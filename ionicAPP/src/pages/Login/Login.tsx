@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonLabel, IonText } from '@ionic/react';
-import '../../components/styles/login-style.css'; 
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import '../../components/styles/login-style.css';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,51 +14,55 @@ const Login: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding login-content">
-        <IonItem>
-          <IonInput 
-            type="email" 
-            value={email} 
-            onIonChange={e => setEmail(e.detail.value!)} 
-            placeholder="Enter your email" 
-            required 
-          />
-        </IonItem>
+      <IonContent className="login-content">
+        <IonGrid className="ion-justify-content-center ion-align-items-center">
+          <IonRow className="ion-justify-content-center ion-align-items-center">
+            <IonCol size="12" sizeMd="6" sizeLg="4">
+              <div className="form-box">
+                <IonItem>
+                  <IonInput
+                    type="email"
+                    value={email}
+                    onIonChange={(e) => setEmail(e.detail.value!)}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </IonItem>
 
-        <IonItem>
-          <IonInput 
-            type="password" 
-            value={password} 
-            onIonChange={e => setPassword(e.detail.value!)} 
-            placeholder="Enter your password" 
-            required 
-          />
-        </IonItem>
+                <IonItem>
+                  <IonInput
+                    type="password"
+                    value={password}
+                    onIonChange={(e) => setPassword(e.detail.value!)}
+                    placeholder="Enter your password"
+                    required
+                  />
+                </IonItem>
 
-        <IonText color="medium" className="forgot-password-link">
-          <a href="/forgot-password">Forgot Password?</a>
-        </IonText>
+                <IonText color="medium" className="forgot-password-link">
+                  <a href="/forgot-password">Forgot Password?</a>
+                </IonText>
 
-        <IonButton expand="block" className="login-button" onClick={() => console.log("Login Attempt")}>
-          Login
-        </IonButton>
+                <IonButton expand="block" className="login-button">
+                  Login
+                </IonButton>
 
-        <div className="or-separator">
-          <span>OR</span>
-        </div>
+                <IonButton expand="block" fill="outline" className="register-button">
+                  <a href="/register">Create New Account</a>
+                </IonButton>
 
-        <IonButton expand="block" fill="outline" className="register-button">
-        <a href="/register">Create New Account</a>
-        </IonButton>
-
-        <div className="social-login-buttons">
-          <IonButton expand="block" color="primary" className="social-button">
-            Continue with Facebook
-          </IonButton>
-          <IonButton expand="block" color="medium" className="social-button">
-            Continue with Google
-          </IonButton>
-        </div>
+                <div className="social-login-buttons">
+                  <IonButton expand="block" color="primary" className="social-button">
+                    Continue with Facebook
+                  </IonButton>
+                  <IonButton expand="block" color="medium" className="social-button">
+                    Continue with Google
+                  </IonButton>
+                </div>
+              </div>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );
