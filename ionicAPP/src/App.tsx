@@ -5,6 +5,7 @@ import Home from './pages/Home-page/Home-page';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import ForgotPassword from './pages/Forgotten-password/Forgot-password';
+import MyProfile from './pages/My-profile/My-profile';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -46,6 +47,7 @@ const App: React.FC = () => (
         <Route exact path="/register" component={Register} />
         <Route exact path="/forgot-password" component={ForgotPassword} />
         <Route exact path="/home" component={Home} />
+        <Route exact path="/my-profile" component={MyProfile} />
       </IonReactRouter>
   </IonApp>
 );

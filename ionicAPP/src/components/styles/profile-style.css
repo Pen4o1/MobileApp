@@ -1,0 +1,35 @@
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-header {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-content .profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-buttons {
+    margin-top: 20px;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.profile-button {
+    margin: 10px 0;
+}
