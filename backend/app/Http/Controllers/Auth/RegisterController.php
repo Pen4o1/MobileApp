@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserDetails;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -39,7 +40,19 @@ class RegisterController extends Controller
         $email_unique_validator = Validator::make($request->all(), [
             'email' => 'unique:users'
         ]);
+
+        $birthday_validator = Validator::make($request->all(), [
+            'birthdate' => 'required|date'
+        ]);
         
+        $kilos_validator = Validator::make($request->all(), [
+            'kilos' => 'required|numeric'
+        ]);
+
+        $height_validator = Validator::make($request->all(), [
+            'height' => 'required|numeric'
+        ]);
+
         if($first_name_validator->fails()){
             return response()->json([
                 'message' => 'Invalid first name',
@@ -75,6 +88,27 @@ class RegisterController extends Controller
             ], 422);
         }
 
+        if($birthday_validator->fails()){
+            return response()->json([
+                'message' => 'The Birthday must be a valid date',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if($kilos_validator->fails()){
+            return response()->json([
+                'message' => 'The kilograms must be a valid number',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if($height_validator->fails()){
+            return response()->json([
+                'message' => 'The height must be a valid number',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $user = User::create([
             'first_name' => $request->first_name, 
             'last_name' => $request->last_name, 
@@ -82,9 +116,17 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $userDetail = UserDetail::create([
+            'user_id' => $user->id,
+            'birthdate' => $request->birthdate,
+            'kilos' => $request->kilos,
+            'height' => $request->height,
+        ]);
+
         return response()->json([
             'message' => 'Registration successful',
-            'user' => $user
+            'user' => $user,
+            'user_detail' => $userDetail,
         ], 201);
     }
 }
