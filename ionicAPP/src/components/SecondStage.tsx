@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonDatetime ,IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol } from '@ionic/react';
-import '../../components/styles/user-details-style.css';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 
-const UserDetailsForm: React.FC = () => {
+interface SecondStageProps {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+}
+
+const SecondStage: React.FC<SecondStageProps> = ({ first_name, last_name, email, password }) => {
   const [birthdate, setBirthdate] = useState('');
   const [kilos, setKilos] = useState('');
   const [height, setHeight] = useState('');
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleSaveDetails = async () => {
-    const userDetailsData = { birthdate, kilos, height };
-
+  const handleCompleteRegistration = async () => {
+    const data = { first_name, last_name, email, password, birthdate, kilos, height };
+    console.log(kilos)
+    console.log(data)
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/user-details', {
+      const response = await fetch('http://127.0.0.1:8000/api/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(userDetailsData),
+        headers: { 'Content-Type': 'application/json', 'Accept':'application/json' },
+        body: JSON.stringify(data),
       });
+      const result = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json();
-        setMessage(errorData.message || 'Failed to save details');
+        setMessage(result.message || 'Registration failed');
         return;
       }
-
-      const result = await response.json();
-      setMessage(result.message || 'Details saved successfully');
+      setMessage(result.message || 'Registration complete');
     } catch (error) {
-      console.error("Error saving user details:", error);
       setMessage("Error connecting to the server.");
     }
   };
@@ -36,17 +40,16 @@ const UserDetailsForm: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Enter Your Details</IonTitle>
+          <IonTitle>Complete Registration</IonTitle>
         </IonToolbar>
       </IonHeader>
-
-      <IonContent className="user-details-content">
+      <IonContent className="register-content">
         <IonGrid className="ion-justify-content-center ion-align-items-center">
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="12" sizeMd="6" sizeLg="4">
               <div className="form-box">
                 <IonItem>
-                  <IonInput  
+                  <IonInput
                     type="date"
                     value={birthdate}
                     onIonChange={e => setBirthdate(e.detail.value!)}
@@ -54,17 +57,15 @@ const UserDetailsForm: React.FC = () => {
                     required
                   />
                 </IonItem>
-
                 <IonItem>
                   <IonInput
                     type="number"
                     value={kilos}
                     onIonChange={e => setKilos(e.detail.value!)}
-                    placeholder="Kilos (Weight)"
+                    placeholder="Weight (kg)"
                     required
                   />
                 </IonItem>
-
                 <IonItem>
                   <IonInput
                     type="number"
@@ -74,13 +75,11 @@ const UserDetailsForm: React.FC = () => {
                     required
                   />
                 </IonItem>
-
-                <IonButton expand="block" className="save-button" onClick={handleSaveDetails}>
-                  Save Details
+                <IonButton expand="block" onClick={handleCompleteRegistration}>
+                  Complete Registration
                 </IonButton>
-
                 {message && (
-                  <IonText color="medium" className="status-message">
+                  <IonText color="medium" className="error-message">
                     <div>{message}</div>
                   </IonText>
                 )}
@@ -91,6 +90,6 @@ const UserDetailsForm: React.FC = () => {
       </IonContent>
     </IonPage>
   );
-};  
+};
 
-export default UserDetailsForm;
+export default SecondStage;
