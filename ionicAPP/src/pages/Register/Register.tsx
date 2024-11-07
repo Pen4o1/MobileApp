@@ -9,9 +9,10 @@ const RegisterForm: React.FC = () => {
     last_name: '',
     email: '',
     password: '',
+    confirm_password: '',
   });
 
-  const handleFirstStageSubmit = (data: { first_name: string; last_name: string; email: string; password: string }) => {
+  const handleFirstStageSubmit = (data: { first_name: string; last_name: string; email: string; password: string; confirm_password: string }) => {
     setFormData(data);
     setIsSubmitted(true);
   };

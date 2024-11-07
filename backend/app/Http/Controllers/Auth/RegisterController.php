@@ -31,6 +31,7 @@ class RegisterController extends Controller
                     'regex:/[A-Z]/', 
                     'regex:/[0-9]/', 
                     'regex:/[@$!%*#?&]/', 
+                    'confirmed',
             ]]);
 
             $email_format_validator = Validator::make($request->all(), [

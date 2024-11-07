@@ -4,7 +4,7 @@
     import '../components/styles/register-style.css';
 
     interface FirstStageProps {
-        handleSubmit: (data: { first_name: string; last_name: string; email: string; password: string }) => void;
+        handleSubmit: (data: { first_name: string; last_name: string; email: string; password: string; confirm_password: string }) => void;
       }
 
     const FirstStage: React.FC<FirstStageProps> = ({handleSubmit}) => {
@@ -94,7 +94,7 @@
                     </IonInput>
                     </IonItem>
 
-                    <IonButton expand="block" className="signup-button" onClick={() => handleSubmit({first_name, last_name, email, password})}>
+                    <IonButton expand="block" className="signup-button" onClick={() => handleSubmit({first_name, last_name, email, password, confirm_password})}>
                     Sign Up
                     </IonButton>
 

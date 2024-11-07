@@ -15,8 +15,9 @@ const SecondStage: React.FC<SecondStageProps> = ({ first_name, last_name, email,
   const [message, setMessage] = useState<string | null>(null);
 
   const handleCompleteRegistration = async () => {
-    const data = { first_name, last_name, email, password, birthdate, kilos, height };
-    console.log(kilos)
+    const parsedHeight = parseFloat(height);
+    const parsedKilos = parseFloat(kilos);
+    const data = { first_name, last_name, email, password, birthdate, kilos: parsedKilos, height:parsedHeight };
     console.log(data)
     try {
       const response = await fetch('http://127.0.0.1:8000/api/register', {
@@ -60,18 +61,18 @@ const SecondStage: React.FC<SecondStageProps> = ({ first_name, last_name, email,
                 <IonItem>
                   <IonInput
                     type="number"
-                    value={kilos}
-                    onIonChange={e => setKilos(e.detail.value!)}
-                    placeholder="Weight (kg)"
+                    value={height}
+                    onIonChange={e => setHeight(e.detail.value!)}
+                    placeholder="Height (cm)"
                     required
                   />
                 </IonItem>
                 <IonItem>
                   <IonInput
                     type="number"
-                    value={height}
-                    onIonChange={e => setHeight(e.detail.value!)}
-                    placeholder="Height (cm)"
+                    value={kilos}
+                    onIonChange={e => setKilos(e.detail.value!)}
+                    placeholder="Weight (kg)"
                     required
                   />
                 </IonItem>
