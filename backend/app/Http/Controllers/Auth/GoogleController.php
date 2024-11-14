@@ -21,11 +21,10 @@ class GoogleController extends Controller
             $googleUser = Socialite::driver('google')->stateless()->user();
 
             $fullName = $googleUser->getName();
-            $nameParts = explode(' ', $fullName, 2); // Split into first and last name
+            $nameParts = explode(' ', $fullName, 2); 
             $firstName = $nameParts[0] ?? '';
             $lastName = $nameParts[1] ?? '';
 
-            // Check if the user already exists or create a new one
             $user = User::updateOrCreate(
                 ['email' => $googleUser->getEmail()],
                 [
