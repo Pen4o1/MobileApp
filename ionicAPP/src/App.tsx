@@ -1,5 +1,5 @@
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact, IonContent} from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact, IonContent } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home-page/Home-page';
 import Login from './pages/Login/Login';
@@ -7,6 +7,7 @@ import Register from './pages/Register/Register';
 import ForgotPassword from './pages/Forgotten-password/Forgot-password';
 import MyProfile from './pages/My-profile/My-profile';
 import SecondStageRegister from './components/SecondStage';
+import { GoogleOAuthProvider } from '@react-oauth/google';  // Import GoogleOAuthProvider
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -24,15 +25,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
+/* Ionic Dark Mode */
 import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
@@ -41,8 +34,9 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter> 
+  <GoogleOAuthProvider clientId="742935799054-rne4kl9nhlhju6p5v4tc9u1k6h674c21.apps.googleusercontent.com">
+    <IonApp>
+      <IonReactRouter>
         <Route exact path="/" component={Login} />
         <Route exact path="/login" component={Login} /> 
         <Route exact path="/register" component={Register} />
@@ -50,7 +44,8 @@ const App: React.FC = () => (
         <Route exact path="/home" component={Home} />
         <Route exact path="/my-profile" component={MyProfile} />
       </IonReactRouter>
-  </IonApp>
+    </IonApp>
+  </GoogleOAuthProvider>
 );
 
 export default App;

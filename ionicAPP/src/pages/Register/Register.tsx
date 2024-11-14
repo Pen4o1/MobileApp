@@ -4,23 +4,47 @@ import SecondStage from '../../components/SecondStage';
 
 const RegisterForm: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
     email: '',
     password: '',
     confirm_password: '',
+    birthdate: '',
+    kilos: '',
+    height: '',
   });
 
-  const handleFirstStageSubmit = (data: { first_name: string; last_name: string; email: string; password: string; confirm_password: string }) => {
-    setFormData(data);
+  const handleFirstStageSubmit = () => {
     setIsSubmitted(true);
   };
 
+  const updateFormData = (field: string, value: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
+  const handleBack = () => {
+    setIsSubmitted(false);
+  };
+
   return (
-    !isSubmitted ? 
-      <FirstStage handleSubmit={handleFirstStageSubmit} /> : 
-      <SecondStage {...formData} />
+    !isSubmitted ? (
+      <FirstStage
+        handleSubmit={handleFirstStageSubmit}
+        formData={formData}
+        updateFormData={updateFormData}
+      />
+    ) : (
+      <SecondStage 
+        formData={formData}
+        updateFormData={updateFormData}
+        handleBack={handleBack} 
+      />
+    )
   );
 };
 

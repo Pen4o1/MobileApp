@@ -55,7 +55,7 @@ const Login: React.FC = () => {
                   <IonButton expand="block" color="primary" className="social-button">
                     Continue with Facebook
                   </IonButton>
-                  <IonButton expand="block" color="medium" className="social-button">
+                  <IonButton href="{{ url('auth/google') }}" expand="block" color="medium" className="social-button">
                     Continue with Google
                   </IonButton>
                 </div>
