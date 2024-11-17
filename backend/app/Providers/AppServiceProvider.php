@@ -2,23 +2,39 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
-class AppServiceProvider extends ServiceProvider
+class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * The policy mappings for the application.
+     *
+     * @var array
      */
-    public function register(): void
+    protected $policies = [
+        // Define any custom policies here
+    ];
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
     {
-        //
+        // Register any application services
     }
 
     /**
      * Bootstrap any application services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        $this->registerPolicies();
+        Sanctum::usePersonalAccessTokenModel(\App\Models\PersonalAccessToken::class);
     }
 }

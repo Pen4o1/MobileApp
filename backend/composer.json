@@ -11,6 +11,8 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
+        "league/oauth2-client": "^2.7",
+        "league/oauth2-google": "^4.0",
         "livewire/livewire": "^3.0"
     },
     "require-dev": {

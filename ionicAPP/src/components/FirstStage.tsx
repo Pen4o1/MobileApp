@@ -40,13 +40,50 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
     handleSubmit();
   };
 
-  const handleGoogleLogin = (response: any) => {
-    console.log(response);
-    if (response?.credential) {
-      updateFormData('email', response?.credential);
-      handleSubmit();
+  const handleGoogleLogin = async (response: any) => {
+    try {
+      console.log(response); 
+
+      if (response?.credential) {
+        const token = response.credential;
+
+        const userInfo = await fetchUserInfoFromBackend(token);
+        if (userInfo) {
+          updateFormData('first_name', userInfo.names[0].givenName);
+          updateFormData('last_name', userInfo.names[0].familyName);
+          updateFormData('email', userInfo.emailAddresses[0].value);
+
+          handleSubmit();
+        }
+      } else {
+        setMessage('Google login failed. No token received.');
+      }
+    } catch (error) {
+      console.error('Error fetching user information: ', error);
+      setMessage('Google login failed. Please try again.');
     }
   };
+
+  const fetchUserInfoFromBackend = async (token: string) => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/google/callback', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+
+        body: JSON.stringify({ token }),  
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch user information from the backend");
+      }
+  
+      const data = await response.json();
+      return data.user; 
+    } catch (error) {
+      throw new Error('Failed to fetch user data from the backend');
+    }
+  };
+  
 
   return (
     <IonPage>
@@ -121,17 +158,19 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
                 <IonButton
                   expand="block"
                   onClick={handleNextClick}
-                  disabled={!isFormValid()} 
+                  disabled={!isFormValid()}
                 >
                   <IonIcon icon={arrowForwardCircle} slot="start" />
                   Next
                 </IonButton>
 
-                <GoogleLogin
-                  onSuccess={handleGoogleLogin}
-                  onError={() => setMessage('Google login failed. Please try again.')}
-                  useOneTap
-                />
+                <div className="social-button"> 
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => setMessage('Google login failed. Please try again.')}
+                    useOneTap
+                  />
+                </div>
 
                 {message && (
                   <IonText color="medium" className="error-message">
@@ -148,6 +187,3 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
 };
 
 export default FirstStage;
-
-
-/* http://localhost:8000/auth/google/callback */

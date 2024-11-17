@@ -34,7 +34,7 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => (
-  <GoogleOAuthProvider clientId="742935799054-rne4kl9nhlhju6p5v4tc9u1k6h674c21.apps.googleusercontent.com">
+  <GoogleOAuthProvider clientId="742935799054-antfglui429eb8aj3ui01pogffeo8iae.apps.googleusercontent.com">
     <IonApp>
       <IonReactRouter>
         <Route exact path="/" component={Login} />
