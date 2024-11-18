@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonText, IonIcon, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { eye, eyeOff, arrowForwardCircle } from 'ionicons/icons';
-import { GoogleLogin } from '@react-oauth/google';
 
 interface FirstStageProps {
   handleSubmit: () => void;
@@ -42,18 +41,19 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
 
   const handleGoogleLogin = async (response: any) => {
     try {
-      console.log(response); 
+      console.log(response);
 
       if (response?.credential) {
         const token = response.credential;
 
+        // Call the backend with the token to get user information
         const userInfo = await fetchUserInfoFromBackend(token);
-        if (userInfo) {
-          updateFormData('first_name', userInfo.names[0].givenName);
-          updateFormData('last_name', userInfo.names[0].familyName);
-          updateFormData('email', userInfo.emailAddresses[0].value);
 
-          handleSubmit();
+        if (userInfo) {
+          // Populate form with user data returned from the backend
+          updateFormData('first_name', userInfo.first_name);
+          updateFormData('last_name', userInfo.last_name || '');  // Ensure last name is empty if not provided
+          updateFormData('email', userInfo.email);
         }
       } else {
         setMessage('Google login failed. No token received.');
@@ -66,24 +66,22 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
 
   const fetchUserInfoFromBackend = async (token: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/auth/google/callback', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-
-        body: JSON.stringify({ token }),  
+      const response = await fetch('http://127.0.0.1:8000/auth/callback', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }), 
       });
-  
+
       if (!response.ok) {
-        throw new Error("Failed to fetch user information from the backend");
+        throw new Error('Failed to fetch user information from the backend');
       }
-  
+
       const data = await response.json();
-      return data.user; 
+      return data; 
     } catch (error) {
       throw new Error('Failed to fetch user data from the backend');
     }
   };
-  
 
   return (
     <IonPage>
@@ -164,12 +162,16 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
                   Next
                 </IonButton>
 
-                <div className="social-button"> 
-                  <GoogleLogin
-                    onSuccess={handleGoogleLogin}
-                    onError={() => setMessage('Google login failed. Please try again.')}
-                    useOneTap
-                  />
+                <div className="social-button">
+                  <a
+                    href="http://127.0.0.1:8000/auth/google"
+                    className="social-link inline-block px-3 py-2 rounded-lg shadow"
+                    title="Login with Google"
+                  >
+                    <span style={{ fontSize: '16px', verticalAlign: 'middle' }}>
+                      Login with Google
+                    </span>
+                  </a>
                 </div>
 
                 {message && (

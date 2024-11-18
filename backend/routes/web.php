@@ -1,9 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\GoogleController;
+ 
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::controller(GoogleController::class)->group(function() {
+    Route::get('auth/google', 'redirectToGoogle');
+    Route::get('auth/callback', 'handleGoogleCallback');
 });
 
 Route::middleware([
