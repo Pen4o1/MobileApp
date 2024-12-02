@@ -54,6 +54,9 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
           updateFormData('first_name', userInfo.first_name);
           updateFormData('last_name', userInfo.last_name || '');  // Ensure last name is empty if not provided
           updateFormData('email', userInfo.email);
+
+          // Optionally call handleSubmit if you want to submit immediately
+          handleSubmit(); // Call handleSubmit after populating the form
         }
       } else {
         setMessage('Google login failed. No token received.');
@@ -69,7 +72,7 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
       const response = await fetch('http://127.0.0.1:8000/auth/callback', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }), 
+        body: JSON.stringify({ token }), // Send the token to the backend
       });
 
       if (!response.ok) {
@@ -77,7 +80,7 @@ const FirstStage: React.FC<FirstStageProps> = ({ handleSubmit, formData, updateF
       }
 
       const data = await response.json();
-      return data; 
+      return data; // Return the user data from the backend
     } catch (error) {
       throw new Error('Failed to fetch user data from the backend');
     }

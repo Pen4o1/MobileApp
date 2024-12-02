@@ -13,7 +13,8 @@
         "laravel/tinker": "^2.9",
         "league/oauth2-client": "^2.7",
         "league/oauth2-google": "^4.0",
-        "livewire/livewire": "^3.0"
+        "livewire/livewire": "^3.0",
+        "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
