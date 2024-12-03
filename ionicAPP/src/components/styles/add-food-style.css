@@ -1,0 +1,98 @@
+/* General page styles */
+ion-page {
+    --background: #f4f4f4;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Swiper container styling */
+  .my-swiper {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    margin-top: 20px;
+  }
+  
+  /* Swiper slide styling */
+  .swiper-slide {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Content inside each swiper slide */
+  .swiper-slide ion-item {
+    margin-bottom: 20px;
+  }
+  
+  /* Adjust the ion-label styling for readability */
+  ion-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Styling for IonButton in each slide */
+  ion-button {
+    --border-radius: 5px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --background: #3880ff; /* Customize the background color */
+    --color: white;
+    --font-weight: bold;
+  }
+  
+  /* Styling for IonIcon in IonItem */
+  ion-icon {
+    color: #3880ff;
+    font-size: 24px;
+    margin-right: 10px;
+  }
+  
+  /* Button hover effect */
+  ion-button:hover {
+    --background: #3171e3; /* Darker blue on hover */
+  }
+  
+  /* Styling for IonInput */
+  ion-input {
+    --padding-start: 10px;
+    --padding-end: 10px;
+    --border-radius: 10px;
+    --background: #f9f9f9;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+  }
+  
+  /* Styling for IonText inside the Image Slide */
+  ion-text {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  /* Swiper pagination styling */
+  .swiper-pagination {
+    bottom: 10px !important;
+  }
+  
+  .swiper-pagination-bullet {
+    background-color: #3880ff;
+  }
+  
+  .swiper-pagination-bullet-active {
+    background-color: #3171e3;
+  }
+  
+  /* Styling for Navigation Arrows */
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #3880ff;
+  }
+  
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    color: #3171e3;
+  }
+  

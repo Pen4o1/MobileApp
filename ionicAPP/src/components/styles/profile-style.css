@@ -33,3 +33,11 @@
 .profile-button {
     margin: 10px 0;
 }
+
+.profile-box {
+    background-color: #fff; /* or any background color you prefer */
+    border-radius: 15px; /* Makes the corners rounded */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+    padding: 20px; /* Adds some space inside the box */
+    margin: 20px; /* Adds space around the box */
+}
