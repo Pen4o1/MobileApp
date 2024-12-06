@@ -24,7 +24,6 @@ const AddFood: React.FC = () => {
                 spaceBetween={50}
                 slidesPerView={1}
                 loop={true}
-                navigation
                 pagination={{ clickable: true }}
               >
                 <SwiperSlide>   

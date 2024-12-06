@@ -5,7 +5,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { useHistory } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import '../../components/styles/home.css';
 import MacrosChart from '../../components/macros-chart';
 import ProgressChart from '../../components/progress-chart';
@@ -14,48 +13,35 @@ const Home: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const history = useHistory();
 
-    // Function to validate the JWT token
-    const validateToken = async (token: string) => {
+    const validateToken = async () => {
         try {
             const response = await fetch('http://127.0.0.1:8000/api/validate-token', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                credentials: 'include',
             });
 
             if (response.ok) {
-                return true; // Token is valid
+                const data = await response.json();
+                if (data.valid) {
+                    setIsAuthenticated(true); 
+                } else {
+                    history.push('/login');
+                }
             } else {
-                return false; // Token is invalid
+                history.push('/login');
             }
         } catch (error) {
             console.error('Token validation failed:', error);
-            return false;
+            history.push('/login');
         }
     };
 
     useEffect(() => {
-        const token = Cookies.get('jwt_token'); // Retrieve the JWT token from the cookie
-
-        if (token) {
-            // Validate the token with the backend
-            validateToken(token).then((isValid) => {
-                if (isValid) {
-                    setIsAuthenticated(true); // Allow access to the page
-                } else {
-                    Cookies.remove('jwt_token'); // Clear the invalid token
-                    history.push('/login'); // Redirect to login
-                }
-            });
-        } else {
-            history.push('/login'); // Redirect to login if no token is present
-        }
+        validateToken();
     }, [history]);
 
     if (!isAuthenticated) {
-        return null; // Prevent rendering until authentication is confirmed
+        return null; 
     }
 
     return (

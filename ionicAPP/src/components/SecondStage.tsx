@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonIcon, IonInput, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonIcon, IonInput, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol, IonLoading } from '@ionic/react';
 import { arrowBackCircle } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom'; 
 import './styles/register-style.css';
@@ -21,6 +21,7 @@ interface SecondStageProps {
 
 const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, handleBack }) => {
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);  
   const history = useHistory();
 
   const handleCompleteRegistration = async () => {
@@ -28,6 +29,8 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
     const parsedKilos = parseFloat(formData.kilos);
     const data = { ...formData, kilos: parsedKilos, height: parsedHeight };
     console.log(data);
+
+    setLoading(true);
 
     try {
       const response = await fetch('http://127.0.0.1:8000/api/register', {
@@ -45,14 +48,15 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
 
       setMessage(result.message || 'Registration complete');
 
-      // Check if the backend returned a redirect URL
       if (result.redirect_url) {
         Cookies.set('jwt_token', result.token, { expires: 1 / 24 });
-        history.push(result.redirect_url); // Use React Router's history to navigate
+        history.push(result.redirect_url); 
       }
 
     } catch (error) {
       setMessage('Error connecting to the server.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,7 +71,7 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
         <IonGrid className="ion-justify-content-center ion-align-items-center">
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="1" className="ion-align-self-center">
-              <IonButton onClick={handleBack} fill="clear">
+              <IonButton onClick={handleBack} fill="clear" disabled={loading}>  
                 <IonIcon icon={arrowBackCircle} slot="icon-only" />
               </IonButton>
             </IonCol>
@@ -80,6 +84,7 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
                     onIonChange={(e) => updateFormData('birthdate', e.detail.value!)}
                     placeholder="Birthdate"
                     required
+                    disabled={loading}
                   />
                 </IonItem>
                 <IonItem>
@@ -89,6 +94,7 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
                     onIonChange={(e) => updateFormData('height', e.detail.value!)}
                     placeholder="Height (cm)"
                     required
+                    disabled={loading}
                   />
                 </IonItem>
                 <IonItem>
@@ -98,11 +104,15 @@ const SecondStage: React.FC<SecondStageProps> = ({ formData, updateFormData, han
                     onIonChange={(e) => updateFormData('kilos', e.detail.value!)}
                     placeholder="Weight (kg)"
                     required
+                    disabled={loading}
                   />
                 </IonItem>
-                <IonButton expand="block" onClick={handleCompleteRegistration}>
-                  Complete Registration
+                <IonButton expand="block" onClick={handleCompleteRegistration} disabled={loading}>
+                  {loading ? 'Submitting...' : 'Complete Registration'} 
                 </IonButton>
+
+                <IonLoading isOpen={loading}/>
+
                 {message && (
                   <IonText color="medium" className="error-message">
                     <div>{message}</div>

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Cookie;
 
+
 class RegisterController extends Controller
 {
     public function Register(Request $request)
@@ -113,22 +114,31 @@ class RegisterController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Hash the password for security
+            'password' => Hash::make($request->password), 
             'birthdate' => $request->birthdate,
             'kilos' => $request->kilos,
             'height' => $request->height,
         ]);
 
-        // Generate a JWT token for the user
         $token = JWTAuth::fromUser($user);
 
-        // Save the token in a secure, HTTP-only cookie
-        $cookie = cookie('jwt_token', $token, 60, null, null, true, true); // 60 minutes expiry
+        $cookie = cookie(
+            'jwt_token',
+            $token,
+            60,
+            '/',
+            '127.0.0.1',
+            false, 
+            true 
+        );
 
+        \Illuminate\Support\Facades\Cookie::queue("jwt_token", $token, 60);
+        
         return response()->json([
             'message' => 'Registration complete',
             'user' => $user,
-             'redirect_url' => '/home'
-        ], 201)->cookie($cookie); // Attach the cookie to the response
+            'redirect_url' => '/home'
+        ], 201)->cookie($cookie);
+        
     }
 }
