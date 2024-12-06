@@ -11,6 +11,7 @@ import MyProfile from './pages/My-profile/My-profile';
 import AddFood from './pages/Add-food/Add-food';
 import { GoogleOAuthProvider } from '@react-oauth/google';  
 import './components/styles/app-style.css'
+import NutritionInfo from './components/nutritionScreen';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -69,6 +70,7 @@ const App: React.FC = () => {
               <Route exact path="/forgot-password">
                 <ForgotPassword />
               </Route>
+              <Route exact path="/nutrition-info" component={NutritionInfo} />
             </IonRouterOutlet>
 
             {isLoggedIn && (
