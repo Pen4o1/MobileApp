@@ -27,11 +27,11 @@ class LoginController extends Controller
             $cookie = cookie(
                 'jwt_token',
                 $token,
-                60, // Expiration time in minutes
-                '/', // Path
-                '127.0.0.1', // Domain
-                false, // Secure flag (false for localhost)
-                true // HttpOnly flag
+                60, 
+                '/',
+                '127.0.0.1',
+                false,
+                true
             );
             
             return response()->json([
