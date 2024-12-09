@@ -12,4 +12,9 @@
     height: 100%;
     /* Optional: adjust padding or margins as necessary */
   }
+
+ ion-icon.md{
+  margin: 0;
+ }
+  
   

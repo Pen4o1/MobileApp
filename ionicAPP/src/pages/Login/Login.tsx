@@ -3,6 +3,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonLoad
 import '../../components/styles/login-style.css';
 import { UserContext } from '../../App';
 import { useHistory } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,7 +19,12 @@ const Login: React.FC = () => {
 
   const { setIsLoggedIn } = context;
 
-  const handleLogin = async () => {
+  interface LoginResponse {
+    token: string;
+    redirect_url?: string;
+  }
+  
+  const handleLogin = async (): Promise<void> => {
     setLoading(true);
     try {
       const response = await fetch('http://127.0.0.1:8000/api/login', {
@@ -26,22 +32,28 @@ const Login: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           email,
           password,
         }),
       });
-
-      
+  
       if (response.ok) {
-        const data = await response.json();
+        const data: LoginResponse = await response.json();
         setIsLoggedIn(true);
         setErrorMessage(null);
+  
+        Cookies.set('jwt_token', data.token, {
+          expires: 1 / 24, 
+          secure: process.env.NODE_ENV === 'production', 
+          sameSite: 'lax',
+        });
+  
         if (data.redirect_url) {
-          data.set('jwt_token', data.token, { expires: 1 / 24 });
-          history.push(data.redirect_url); 
+          console.log('Login successful:', data);
+          history.push(data.redirect_url);
         }
-        console.log('Login successful:', data);
       } else if (response.status === 422) {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Invalid credentials.');
@@ -51,7 +63,7 @@ const Login: React.FC = () => {
     } catch (error) {
       console.error('Login error:', error);
       setErrorMessage('Network error. Please try again.');
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
