@@ -40,6 +40,7 @@ class GoogleController extends Controller
                 'last_name' => $googleUser->user['family_name'] ?? '',
                 'password' => Hash::make($randPassword),
                 'google_id' => $googleUser->getId(),
+                'compleated' => false,
             ]);
 
             Auth::login($userData);

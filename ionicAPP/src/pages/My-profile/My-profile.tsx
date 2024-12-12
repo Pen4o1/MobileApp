@@ -6,12 +6,6 @@ import '../../components/styles/profile-style.css';
 const MyProfile: React.FC = () => {
     return (
         <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>My Profile</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
             <IonContent className="ion-padding profile-content">
                 <div className="profile-box">
                     <div className="profile-header">

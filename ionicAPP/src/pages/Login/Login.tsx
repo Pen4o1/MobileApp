@@ -18,6 +18,7 @@ const Login: React.FC = () => {
   }
 
   const { setIsLoggedIn } = context;
+  const { setIsCompleated } = context;
 
   interface LoginResponse {
     token: string;
@@ -42,7 +43,8 @@ const Login: React.FC = () => {
       if (response.ok) {
         const data: LoginResponse = await response.json();
         setIsLoggedIn(true);
-        setErrorMessage(null);
+        setIsCompleated(true);
+        setErrorMessage(null);  
   
         Cookies.set('jwt_token', data.token, {
           expires: 1 / 24, 
@@ -70,12 +72,6 @@ const Login: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Login</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent className="login-content">
         <IonGrid className="ion-justify-content-center ion-align-items-center">
           <IonRow className="ion-justify-content-center ion-align-items-center">

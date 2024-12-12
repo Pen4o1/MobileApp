@@ -33,8 +33,9 @@ class User extends Authenticatable implements JWTSubject // Implement JWTSubject
         'birthdate',
         'kilos',
         'height',
-        'google_id',    // Added for Google OAuth
-        'avatar',       // Added for Google OAuth
+        'google_id',
+        'avatar', 
+        'compleated',
     ];
 
     /**

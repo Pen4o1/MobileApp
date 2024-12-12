@@ -129,12 +129,6 @@ const AddFood: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Add Food</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent>
         <IonGrid>
           <IonRow>
