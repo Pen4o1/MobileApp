@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ProfileCompleteController;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -32,6 +33,10 @@ Route::post('/validate-token', function (Request $request) {
     }
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
+    Route::post('/profile/complete', [ProfileCompleteCotroller::class, 'completeProfile']);
+});
 
 Route::middleware(['auth:sanctum', \Fruitcake\Cors\HandleCors::class])->get('/user', function (Request $request) {
     return $request->user();

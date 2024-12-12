@@ -17,7 +17,7 @@ class GoogleController extends Controller
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        return Socialite::driver('google')->scopes(['profile', 'https://www.googleapis.com/auth/user.birthday.read'])->stateless()->redirect();
     }
 
     /**
@@ -41,6 +41,7 @@ class GoogleController extends Controller
                 'password' => Hash::make($randPassword),
                 'google_id' => $googleUser->getId(),
                 'compleated' => false,
+                'birthdate' => $googleUser->user['birthday'] ?? null,
             ]);
 
             Auth::login($userData);

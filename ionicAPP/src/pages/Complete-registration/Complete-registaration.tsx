@@ -1,26 +1,44 @@
 import React, { useContext, useState } from 'react';
-import { IonContent, IonSelectOption, IonPage, IonTitle, IonSelect, IonInput, IonLoading, IonButton, IonItem, IonText, IonGrid, IonRow, IonCol, IonList } from '@ionic/react';
+import {
+  IonContent,
+  IonAccordionGroup,
+  IonAccordion,
+  IonPage,
+  IonTitle,
+  IonInput,
+  IonLoading,
+  IonButton,
+  IonItem,
+  IonText,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonLabel,
+} from '@ionic/react';
 import '../../components/styles/login-style.css';
 import { UserContext } from '../../App';
 import { useHistory } from 'react-router-dom';
-import Cookies from 'js-cookie';
 
-const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [kilos, setKilos] = useState('');
+const Profile: React.FC = () => {
   const [birthdate, setBirthdate] = useState('');
   const [height, setHeight] = useState('');
+  const [kilos, setKilos] = useState('');
+  const [secondName, setSecondName] = useState('');
+  const [firstName, setFirstName] = useState('');   
+  const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);  
-  const context = useContext(UserContext);
 
-  if (!context) {
-    throw new Error("UserContext must be used within a UserContext.Provider");
-  }
+  const incompleteFields = {
+    birthdate: false,
+    height: false,
+    kilos: true,
+    secondName: true,
+    firstName: true,
+  };
 
-  
-  const handleCompleteProfile = async (): Promise<void> => {
+  const handleSave = async (): Promise<void> => {
     setLoading(true);
+    setTimeout(() => setLoading(false), 2000);
   };
 
   return (
@@ -29,53 +47,86 @@ const Login: React.FC = () => {
         <IonGrid className="ion-justify-content-center ion-align-items-center">
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="12" sizeMd="6" sizeLg="4">
-                <IonList>
-                    <IonSelect aria-label="Favorite Fruit">
-                            <IonSelectOption>
-                                <IonItem>
-                                    <IonInput
-                                        type="date"
-                                        value={birthdate}
-                                        onIonChange={(e) => setBirthdate(e.detail.value!)}
-                                        placeholder="Birthdate"
-                                        required
-                                        disabled={loading}
-                                    />
-                                </IonItem>
-                            <IonItem>
-                                <IonInput
-                                    type="number"
-                                    value={height}
-                                    onIonChange={(e) => setHeight(e.detail.value!)}
-                                    placeholder="Height (cm)"
-                                    required
-                                    disabled={loading}
-                                />
-                            </IonItem>
-                            <IonItem>
-                                <IonInput
-                                    type="number"
-                                    value={kilos}
-                                    onIonChange={(e) => setKilos(e.detail.value!)}
-                                    placeholder="Weight (kg)"
-                                    required
-                                    disabled={loading}
-                                />
-                            </IonItem>
-                            </IonSelectOption>
-                    </IonSelect>
-                </IonList>
+              <IonAccordionGroup>
+                <IonAccordion value="personal">
+                  <IonItem slot="header">
+                    <IonLabel>Personal Details</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                  <IonItem>
+                      <IonInput
+                        placeholder='First Name' 
+                        type="text"
+                        value={firstName}
+                        onIonChange={(e) => setFirstName(e.detail.value!)}
+                        disabled={!incompleteFields.firstName || loading}
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonInput
+                        placeholder='Second Name'
+                        type="text"
+                        value={secondName}
+                        onIonChange={(e) => setSecondName(e.detail.value!)}
+                        disabled={!incompleteFields.secondName || loading}
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel position="stacked">Birthdate</IonLabel>
+                      <IonInput
+                        type="date"
+                        value={birthdate}
+                        onIonChange={(e) => setBirthdate(e.detail.value!)}
+                        disabled={incompleteFields.birthdate || loading}
+                      />
+                    </IonItem>
+                  </div>
+                </IonAccordion>
 
-                {errorMessage && (
-                  <IonText color="danger" className="error-message">
-                    {errorMessage}
-                  </IonText>
-                )}
+                <IonAccordion value="additional">
+                  <IonItem slot="header">
+                    <IonLabel>Additional Information</IonLabel>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    <IonItem>
+                      <IonInput
+                      placeholder='Height (cm)'
+                        type="number"
+                        value={height}
+                        onIonChange={(e) => setHeight(e.detail.value!)}
+                        disabled={incompleteFields.height || loading}
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonInput
+                      placeholder='Weight (kg)'
+                        type="number"
+                        value={kilos}
+                        onIonChange={(e) => setKilos(e.detail.value!)}
+                        disabled={!incompleteFields.kilos || loading}
+                      />
+                    </IonItem>
+                  </div>
+                </IonAccordion>
+              </IonAccordionGroup>
 
-                <IonButton expand="block" className="login-button" onClick={handleCompleteProfile} disabled={loading}>
-                  {loading ? 'Subbmiting ...' : 'Submit'}
-                </IonButton>
-                <IonLoading isOpen={loading}/>
+              {/* Error Message */}
+              {errorMessage && (
+                <IonText color="danger" className="error-message">
+                  {errorMessage}
+                </IonText>
+              )}
+
+              {/* Submit Button */}
+              <IonButton
+                expand="block"
+                className="login-button"
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save'}
+              </IonButton>
+              <IonLoading isOpen={loading} />
             </IonCol>
           </IonRow>
         </IonGrid>
@@ -84,4 +135,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Profile;
