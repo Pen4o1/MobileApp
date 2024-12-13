@@ -17,8 +17,7 @@ class ProfileCompleteCotroller extends Controller
             return response()->json(['error' => 'User not authenticated'], 401);
         }
 
-        // Define the required fields for profile completion
-        $requiredFields = ['birthdate', 'kilos', 'height', 'last_name'];
+        $requiredFields = ['birthdate', 'kilos', 'height', 'last_name', 'first_name'];
         $completedFields = [];
         $incompleteFields = [];
 
@@ -36,9 +35,6 @@ class ProfileCompleteCotroller extends Controller
         ]);
     }
 
-    /**
-     * Update profile with the submitted fields.
-     */
     public function completeProfile(Request $request)
     {
         $user = Auth::user();

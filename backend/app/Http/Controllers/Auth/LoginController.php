@@ -28,10 +28,12 @@ class LoginController extends Controller
                 'jwt_token',
                 $token,
                 60, 
-                '/',
-                '127.0.0.1',
-                false,
-                true
+                '/', 
+                null,
+                true, // secure 
+                true, // HttpOnly
+                false, // SameSite 
+                'None'
             );
             
             return response()->json([
