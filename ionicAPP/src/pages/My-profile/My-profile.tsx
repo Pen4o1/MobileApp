@@ -14,7 +14,6 @@ import {
 } from '@ionic/react'
 import { pencil, settings, logOut } from 'ionicons/icons'
 import '../../components/styles/profile-style.css'
-import Cookies from 'js-cookie'
 
 const MyProfile: React.FC = () => {
   return (

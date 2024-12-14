@@ -22,6 +22,7 @@ Route::post('/validate-token', function (Request $request) {
         return response()->json([
             'valid' => true,
             'user' => $user,
+            'compleated' => $user->isCompleted,
         ]);
     } catch (\Exception $e) {
         Log::error("Token validation failed: " . $e->getMessage());

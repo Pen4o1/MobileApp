@@ -57,37 +57,12 @@ const FirstStage: React.FC<FirstStageProps> = ({
     handleSubmit()
   }
 
-  const handleGoogleLogin = async (response: any) => {
-    try {
-      console.log(response)
-
-      if (response?.credential) {
-        const token = response.credential
-
-        const userInfo = await fetchUserInfoFromBackend(token)
-
-        if (userInfo) {
-          updateFormData('first_name', userInfo.first_name)
-          updateFormData('last_name', userInfo.last_name || '')
-          updateFormData('email', userInfo.email)
-
-          handleSubmit()
-        }
-      } else {
-        setMessage('Google login failed. No token received.')
-      }
-    } catch (error) {
-      console.error('Error fetching user information: ', error)
-      setMessage('Google login failed. Please try again.')
-    }
-  }
-
-  const fetchUserInfoFromBackend = async (token: string) => {
+  const fetchUserInfoFromBackend = async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/auth/callback', {
         method: 'GET',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
       })
 
       if (!response.ok) {

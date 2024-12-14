@@ -21,7 +21,7 @@ class LoginController extends Controller
     
         if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
-            $token = JWTAuth::fromUser($user);
+            $token = JWTAuth::fromUser($user, ['id' , 'email']);
             \Log::info('Authenticated user: ' . json_encode($user));
             \Log::info('Generated JWT Token: ' . $token);
             $cookie = cookie(
@@ -33,7 +33,7 @@ class LoginController extends Controller
                 true, // secure 
                 true, // HttpOnly
                 false, // SameSite 
-                'None'
+                'None',
             );
             
             return response()->json([

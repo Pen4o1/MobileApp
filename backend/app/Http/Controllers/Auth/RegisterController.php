@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Cookie;
 
 
 class RegisterController extends Controller
@@ -125,15 +125,15 @@ class RegisterController extends Controller
         $cookie = cookie(
             'jwt_token',
             $token,
-            60,
-            '/',
-            '127.0.0.1',
-            false, 
-            true 
+            60, 
+            '/', 
+            null,
+            true, // secure 
+            true, // HttpOnly
+            false, // SameSite 
+            'None'
         );
 
-        \Illuminate\Support\Facades\Cookie::queue("jwt_token", $token, 60);
-        
         return response()->json([
             'message' => 'Registration complete',
             'user' => $user,

@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth; 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTException;
 
 class GoogleController extends Controller
 {
@@ -27,30 +27,41 @@ class GoogleController extends Controller
 {
     try {
         $googleUser = Socialite::driver('google')->stateless()->user();
-        $user = User::where('google_id', $googleUser->id)->first();
-        
-        $randPassword = Str::password(16, true, true, true, false);
-        if ($user) {
-            Auth::login($user);
-            return redirect()->away('http://localhost:8100/home');
-        } else {
-            $userData = User::create([
-                'email' => $googleUser->getEmail(),
-                'first_name' => $googleUser->user['given_name'] ?? $googleUser->getName(),
-                'last_name' => $googleUser->user['family_name'] ?? '',
-                'password' => Hash::make($randPassword),
-                'google_id' => $googleUser->getId(),
-                'compleated' => false,
-                'birthdate' => $googleUser->user['birthday'] ?? null,
-            ]);
+        $user = User::firstOrCreate([
+            'email' => $googleUser->getEmail(),
+            'first_name' => $googleUser->user['given_name'] ?? $googleUser->getName(),
+            'last_name' => $googleUser->user['family_name'] ?? '',
+            'password' => NULL,
+            'google_id' => $googleUser->getId(),
+            'compleated' => false,
+            'birthdate' => $googleUser->user['birthday'] ?? null,
+        ]);
 
-            Auth::login($userData);
-            return redirect()->away('http://localhost:8100/home');
-        }
+        Auth::login($user);
+
+        // Generate a proper JWT
+        $token = JWTAuth::fromUser($user, ['id', 'email']);
+
+        // Store the token in a cookie
+        $cookie = cookie(
+            'jwt_token',
+            $token,
+            60,
+            '/',
+            null,
+            true,
+            true,
+            false,
+            'None'
+        );
+
+        return redirect()->away('http://localhost:8100/home')->cookie($cookie);
+
     } catch (\Exception $e) {
-        return redirect()->route('login')->with('error', 'Unable to authenticate. Please try again.');
+        return redirect()->route('login')->with('error', 'Unable to authenticate.');
     }
 }
+
 
     public function user(Request $request)
     {

@@ -61,7 +61,9 @@ const App: React.FC = () => {
           }
         )
         if (response.ok) {
-          setIsLoggedIn(true)
+          const data = await response.json()
+          setIsLoggedIn(data.valid)
+          setIsCompleated(data.compleated)
         } else {
           setIsLoggedIn(false)
         }
@@ -83,6 +85,9 @@ const App: React.FC = () => {
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
+                <Route exact path="/">
+                  <Home />
+                </Route>
                 <Route exact path="/home">
                   <Home />
                 </Route>
