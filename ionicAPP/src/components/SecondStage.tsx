@@ -14,6 +14,8 @@ import {
   IonRow,
   IonCol,
   IonLoading,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/react'
 import { arrowBackCircle } from 'ionicons/icons'
 import { useHistory } from 'react-router-dom'
@@ -29,6 +31,7 @@ interface SecondStageProps {
     birthdate: string
     kilos: string
     height: string
+    gender: string
   }
   updateFormData: (field: string, value: string) => void
   handleBack: () => void
@@ -133,6 +136,20 @@ const SecondStage: React.FC<SecondStageProps> = ({
                     required
                     disabled={loading}
                   />
+                </IonItem>
+                <IonItem>
+                  <IonSelect
+                    value={formData.gender}
+                    placeholder="Select Gender"
+                    onIonChange={(e) =>
+                      updateFormData('gender', e.detail.value!)
+                    }
+                    disabled={loading}
+                  >
+                    <IonSelectOption value="male">Male</IonSelectOption>
+                    <IonSelectOption value="female">Female</IonSelectOption>
+                    <IonSelectOption value="other">Other</IonSelectOption>
+                  </IonSelect>
                 </IonItem>
                 <IonButton
                   expand="block"

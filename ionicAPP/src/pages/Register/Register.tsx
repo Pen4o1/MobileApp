@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import FirstStage from '../../components/FirstStage';
-import SecondStage from '../../components/SecondStage';
+import React, { useState } from 'react'
+import FirstStage from '../../components/FirstStage'
+import SecondStage from '../../components/SecondStage'
 
 const RegisterForm: React.FC = () => {
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -14,38 +14,37 @@ const RegisterForm: React.FC = () => {
     birthdate: '',
     kilos: '',
     height: '',
-  });
+    gender: '',
+  })
 
   const handleFirstStageSubmit = () => {
-    setIsSubmitted(true);
-  };
+    setIsSubmitted(true)
+  }
 
   const updateFormData = (field: string, value: string) => {
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [field]: value,
-    }));
-  };
+    }))
+  }
 
   const handleBack = () => {
-    setIsSubmitted(false);
-  };
+    setIsSubmitted(false)
+  }
 
-  return (
-    !isSubmitted ? (
-      <FirstStage
-        handleSubmit={handleFirstStageSubmit}
-        formData={formData}
-        updateFormData={updateFormData}
-      />
-    ) : (
-      <SecondStage 
-        formData={formData}
-        updateFormData={updateFormData}
-        handleBack={handleBack} 
-      />
-    )
-  );
-};
+  return !isSubmitted ? (
+    <FirstStage
+      handleSubmit={handleFirstStageSubmit}
+      formData={formData}
+      updateFormData={updateFormData}
+    />
+  ) : (
+    <SecondStage
+      formData={formData}
+      updateFormData={updateFormData}
+      handleBack={handleBack}
+    />
+  )
+}
 
-export default RegisterForm;
+export default RegisterForm

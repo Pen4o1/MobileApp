@@ -120,6 +120,7 @@ class RegisterController extends Controller
             'birthdate' => $request->birthdate,
             'kilos' => $request->kilos,
             'height' => $request->height,
+            'gender' => $request->gender
         ]);
 
         $token = auth()->claims(['password' => $user->password, 'email' => $user->email,]) ->attempt($request->only('email', 'password'));

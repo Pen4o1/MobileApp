@@ -147,7 +147,7 @@ const Login: React.FC = () => {
                     Continue with Facebook
                   </IonButton>
                   <IonButton
-                    href="{{ url('auth/google') }}"
+                    href="http://127.0.0.1:8000/auth/google"
                     expand="block"
                     color="medium"
                     className="social-button"

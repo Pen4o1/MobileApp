@@ -22,7 +22,7 @@ class GoogleController extends Controller
      */
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->scopes(['profile', 'https://www.googleapis.com/auth/user.birthday.read'])->stateless()->redirect();
+        return Socialite::driver('google')->scopes(['profile', 'https://www.googleapis.com/auth/user.birthday.read', 'https://www.googleapis.com/auth/user.gender.read'])->stateless()->redirect();
     }
 
     /**
@@ -33,6 +33,8 @@ class GoogleController extends Controller
     try {
         $googleUser = Socialite::driver('google')->stateless()->user();
         
+        $gender = $googleUser->user['gender'] ?? null;
+
         // Create or update the user record
         $user = User::updateOrCreate([
             'email' => $googleUser->getEmail(),
@@ -42,6 +44,7 @@ class GoogleController extends Controller
             'google_id' => $googleUser->getId(),
             'compleated' => false,
             'birthdate' => $googleUser->user['birthday'] ?? null,
+            'gender' =>  $gender,
         ]);
 
         $token = auth()->claims([ 'google_id' => $user->google_id, 'email' => $user->email ])->attempt($request->only('google_id', 'email'));
