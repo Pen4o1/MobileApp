@@ -300,7 +300,6 @@ return [
 
     // these are the custom claims
     'custom_claims' => [
-    'id',
     'email',
     ],
 

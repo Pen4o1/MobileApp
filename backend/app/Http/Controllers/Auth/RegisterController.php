@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class RegisterController extends Controller
@@ -120,7 +122,7 @@ class RegisterController extends Controller
             'height' => $request->height,
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        $token = auth()->claims(['password' => $user->password, 'email' => $user->email,]) ->attempt($request->only('email', 'password'));
 
         $cookie = cookie(
             'jwt_token',

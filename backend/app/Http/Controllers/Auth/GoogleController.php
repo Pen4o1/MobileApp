@@ -9,6 +9,11 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth; 
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Facades\JWTException;
+use Tymon\JWTAuth\Payload;
+use Tymon\JWTAuth\Claims\Collection;
+use Tymon\JWTAuth\Claims\Custom;
+
+
 
 class GoogleController extends Controller
 {
@@ -23,11 +28,13 @@ class GoogleController extends Controller
     /**
      * Handle the Google OAuth callback and retrieve user details.
      */
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
 {
     try {
         $googleUser = Socialite::driver('google')->stateless()->user();
-        $user = User::firstOrCreate([
+        
+        // Create or update the user record
+        $user = User::updateOrCreate([
             'email' => $googleUser->getEmail(),
             'first_name' => $googleUser->user['given_name'] ?? $googleUser->getName(),
             'last_name' => $googleUser->user['family_name'] ?? '',
@@ -37,30 +44,29 @@ class GoogleController extends Controller
             'birthdate' => $googleUser->user['birthday'] ?? null,
         ]);
 
-        Auth::login($user);
+        $token = auth()->claims([ 'google_id' => $user->google_id, 'email' => $user->email ])->attempt($request->only('google_id', 'email'));
 
-        // Generate a proper JWT
-        $token = JWTAuth::fromUser($user, ['id', 'email']);
+        \Log::info('Generated JWT Token: ' . $token);  
 
-        // Store the token in a cookie
         $cookie = cookie(
             'jwt_token',
             $token,
             60,
             '/',
             null,
-            true,
-            true,
-            false,
+            true,               // Secure
+            true,               // HttpOnly
+            false,              // SameSite
             'None'
         );
 
         return redirect()->away('http://localhost:8100/home')->cookie($cookie);
 
     } catch (\Exception $e) {
-        return redirect()->route('login')->with('error', 'Unable to authenticate.');
+        return redirect()->away('http://localhost:8100/login')->with('error', 'Unable to authenticate.');
     }
 }
+
 
 
     public function user(Request $request)

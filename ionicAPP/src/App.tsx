@@ -63,6 +63,7 @@ const App: React.FC = () => {
         if (response.ok) {
           const data = await response.json()
           setIsLoggedIn(data.valid)
+          console.log(data.user)
           setIsCompleated(data.compleated)
         } else {
           setIsLoggedIn(false)
@@ -129,7 +130,7 @@ const App: React.FC = () => {
                 </IonTabBar>
               )}
 
-              {isLoggedIn && isCompleated && (
+              {isLoggedIn && !isCompleated && (
                 <IonTabBar slot="top">
                   <IonTabButton
                     tab="Complete registration"

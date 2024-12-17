@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import Cookies from 'js-cookie' // Import js-cookie for accessing cookies
 import {
   IonContent,
   IonAccordionGroup,
@@ -15,8 +16,6 @@ import {
   IonLabel,
 } from '@ionic/react'
 import '../../components/styles/login-style.css'
-import { UserContext } from '../../App'
-import { useHistory } from 'react-router-dom'
 
 const Profile: React.FC = () => {
   const [birthdate, setBirthdate] = useState('')
@@ -31,17 +30,29 @@ const Profile: React.FC = () => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true)
-        const response = await fetch('http://127.0.0.1:8000/api/profile/status')
+        const token = Cookies.get('auth_token')
+        const response = await fetch(
+          'http://127.0.0.1:8000/api/profile/status',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`, // Include token in Authorization header
+            },
+            credentials: 'include',
+          }
+        )
+
         if (!response.ok) {
           throw new Error('Failed to fetch user profile')
         }
-        const data = await response.json()
 
-        setBirthdate(data.birthdate || '')
-        setHeight(data.height || '')
-        setKilos(data.kilos || '')
-        setSecondName(data.secondName || '')
-        setFirstName(data.firstName || '')
+        const data = await response.json()
+        // Set the profile data to state
+        setBirthdate(data.profile_data.birthdate || '')
+        setHeight(data.profile_data.height || '')
+        setKilos(data.profile_data.kilos || '')
+        setSecondName(data.profile_data.last_name || '')
+        setFirstName(data.profile_data.first_name || '')
       } catch (error) {
         setErrorMessage('Failed to load profile data.')
       } finally {

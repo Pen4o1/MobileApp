@@ -69,6 +69,7 @@ class User extends Authenticatable implements JWTSubject // Implement JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'compleated' => 'boolean', 
         ];
     }
 
@@ -92,7 +93,7 @@ class User extends Authenticatable implements JWTSubject // Implement JWTSubject
     public function getJWTCustomClaims()
     {
         return [
-            'id' => $this->id,
+            'password' => $this->id,
             'email' => $this->email,
         ];
     }
