@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\ProfileCompleteCotroller;
  
 
 Route::get('/', function () {

@@ -23,6 +23,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import './components/styles/app-style.css'
 import NutritionInfo from './components/nutritionScreen'
 import CompleteRegistration from './pages/Complete-registration/Complete-registaration'
+import SetGoalWindow from './components/SetGoalWindow'
 
 import '@ionic/react/css/core.css'
 import '@ionic/react/css/normalize.css'
@@ -49,6 +50,7 @@ setupIonicReact()
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isCompleated, setIsCompleated] = useState(false)
+  const [showGoalWindow, setShowGoalWindow] = useState(false)
 
   useEffect(() => {
     const validateToken = async () => {
@@ -130,6 +132,17 @@ const App: React.FC = () => {
                 </IonTabBar>
               )}
 
+              {isLoggedIn && isCompleated && (
+                <IonTabBar slot="top">
+                  <IonTabButton
+                    tab="Set Goal"
+                    onClick={() => setShowGoalWindow(true)}
+                  >
+                    <IonButton>Set Goal</IonButton>
+                  </IonTabButton>
+                </IonTabBar>
+              )}
+
               {isLoggedIn && !isCompleated && (
                 <IonTabBar slot="top">
                   <IonTabButton
@@ -141,6 +154,11 @@ const App: React.FC = () => {
                 </IonTabBar>
               )}
             </IonTabs>
+
+            <SetGoalWindow
+              isOpen={showGoalWindow}
+              onClose={() => setShowGoalWindow(false)}
+            />
           </IonReactRouter>
         </IonApp>
       </UserContext.Provider>

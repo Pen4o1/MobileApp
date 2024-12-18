@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Http\Middleware\JwtCookieMiddleware;
+use App\Http\Controllers\Auth\GoalController;
 
 
 
@@ -49,6 +50,9 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::get('/profile-status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
     Route::post('/update-profile', [ProfileCompleteCotroller::class, 'completeProfile']);
 });
+
+Route::middleware([JwtCookieMiddleware::class])->post('/save-goal', [GoalController::class, 'saveGoal']);
+
 
 
 Route::middleware(['auth:sanctum', \Fruitcake\Cors\HandleCors::class])->get('/user', function (Request $request) {

@@ -9,9 +9,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
-use Tymon\JWTAuth\Contracts\JWTSubject; // Add this import
+use Tymon\JWTAuth\Contracts\JWTSubject; 
 
-class User extends Authenticatable implements JWTSubject // Implement JWTSubject
+class User extends Authenticatable implements JWTSubject 
 {
     use HasApiTokens;
     use HasFactory;
