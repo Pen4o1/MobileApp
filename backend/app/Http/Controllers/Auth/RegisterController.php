@@ -7,16 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Auth;
-
-
 
 class RegisterController extends Controller
 {
     public function Register(Request $request)
     {
+        // Define all validation rules
         $first_name_validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/']
         ]);
@@ -34,7 +31,8 @@ class RegisterController extends Controller
                 'regex:/[A-Z]/', 
                 'regex:/[0-9]/', 
                 'regex:/[@$!%*#?&]/', 
-        ]]);
+            ]
+        ]);
 
         $email_format_validator = Validator::make($request->all(), [
             'email' => ['required', 'string', 'email', 'max:255']
@@ -54,6 +52,10 @@ class RegisterController extends Controller
         
         $height_validator = Validator::make($request->all(), [
             'height' => 'required|numeric'
+        ]);
+        
+        $gender_validator = Validator::make($request->all(), [
+            'gender' => 'nullable|in:male,female' 
         ]);
 
         if ($first_name_validator->fails()) {
@@ -112,6 +114,13 @@ class RegisterController extends Controller
             ], 422);
         }
 
+        if ($gender_validator->fails()) {
+            return response()->json([
+                'message' => 'Gender must be either male or female',
+                'errors' => $gender_validator->errors()
+            ], 422);
+        }
+
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
@@ -120,10 +129,10 @@ class RegisterController extends Controller
             'birthdate' => $request->birthdate,
             'kilos' => $request->kilos,
             'height' => $request->height,
-            'gender' => $request->gender
+            'gender' => $request->gender, 
         ]);
 
-        $token = auth()->claims(['password' => $user->password, 'email' => $user->email,]) ->attempt($request->only('email', 'password'));
+        $token = auth()->claims(['password' => $user->password, 'email' => $user->email])->attempt($request->only('email', 'password'));
 
         $cookie = cookie(
             'jwt_token',
@@ -142,6 +151,5 @@ class RegisterController extends Controller
             'user' => $user,
             'redirect_url' => '/home'
         ], 201)->cookie($cookie);
-        
     }
 }

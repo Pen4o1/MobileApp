@@ -3,11 +3,12 @@
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ProfileCompleteController;
+use App\Http\Controllers\Auth\ProfileCompleteCotroller;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use App\Http\Middleware\JwtCookieMiddleware;
 
 
 
@@ -42,6 +43,11 @@ Route::post('/validate-token', function (Request $request) {
             'error' => $e->getMessage(),
         ], 401);
     }
+});
+
+Route::middleware([JwtCookieMiddleware::class])->group(function () {
+    Route::get('/profile-status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
+    Route::post('/update-profile', [ProfileCompleteCotroller::class, 'completeProfile']);
 });
 
 

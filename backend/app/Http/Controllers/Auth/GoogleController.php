@@ -35,7 +35,7 @@ class GoogleController extends Controller
         
         $gender = $googleUser->user['gender'] ?? null;
 
-        // Create or update the user record
+
         $user = User::updateOrCreate([
             'email' => $googleUser->getEmail(),
             'first_name' => $googleUser->user['given_name'] ?? $googleUser->getName(),

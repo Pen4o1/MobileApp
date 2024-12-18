@@ -37,7 +37,7 @@ const Login: React.FC = () => {
 
   interface LoginResponse {
     token: string
-    redirect_url?: string
+    redirect_url: string
   }
 
   const handleLogin = async (): Promise<void> => {

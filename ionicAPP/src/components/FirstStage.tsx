@@ -57,25 +57,6 @@ const FirstStage: React.FC<FirstStageProps> = ({
     handleSubmit()
   }
 
-  const fetchUserInfoFromBackend = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/auth/callback', {
-        method: 'GET',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user information from the backend')
-      }
-
-      const data = await response.json()
-      return data
-    } catch (error) {
-      throw new Error('Failed to fetch user data from the backend')
-    }
-  }
-
   return (
     <IonPage>
       <IonHeader>

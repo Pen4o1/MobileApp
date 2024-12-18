@@ -42,7 +42,7 @@ return [
         ],
 
         'api' => [
-            'driver' => 'jwt', // Use the JWT driver for token authentication
+            'driver' => 'jwt',
             'provider' => 'users',
         ],
     ],

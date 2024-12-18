@@ -20,7 +20,6 @@ import {
 import { arrowBackCircle } from 'ionicons/icons'
 import { useHistory } from 'react-router-dom'
 import './styles/register-style.css'
-import Cookies from 'js-cookie'
 
 interface SecondStageProps {
   formData: {
@@ -148,7 +147,6 @@ const SecondStage: React.FC<SecondStageProps> = ({
                   >
                     <IonSelectOption value="male">Male</IonSelectOption>
                     <IonSelectOption value="female">Female</IonSelectOption>
-                    <IonSelectOption value="other">Other</IonSelectOption>
                   </IonSelect>
                 </IonItem>
                 <IonButton
