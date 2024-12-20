@@ -18,7 +18,10 @@ class JwtCookieMiddleware
                 JWTAuth::setToken($token);
                 $user = JWTAuth::authenticate();
                 auth()->setUser($user);
+                \Log::info('Authenticated User:', ['user' => $user]); // Add this line for debugging
+
             } catch (\Exception $e) {
+                \Log::error('Token Authentication Error:', ['error' => $e->getMessage()]);
                 return response()->json(['error' => 'Unauthorized: Invalid Token'], 401);
             }
         } else {

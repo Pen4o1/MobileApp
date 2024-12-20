@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\JwtCookieMiddleware;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -36,5 +38,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Sanctum::usePersonalAccessTokenModel(\App\Models\PersonalAccessToken::class);
+        //$this->app['router']->pushMiddlewareToGroup('web', JwtCookieMiddleware::class);
+        $this->app['router']->pushMiddlewareToGroup('api', JwtCookieMiddleware::class);
     }
 }

@@ -9,9 +9,10 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
-use Tymon\JWTAuth\Contracts\JWTSubject; 
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\UserGoal; 
 
-class User extends Authenticatable implements JWTSubject 
+class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens;
     use HasFactory;
@@ -75,8 +76,6 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    // Add these two methods for JWT authentication
-
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -95,8 +94,19 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [
-            'password' => $this->id,
+            'password' => $this->password,
             'email' => $this->email,
+            'google_id' => $this->google_id,
         ];
+    }
+
+    /**
+     * Define a one-to-one relationship with the Goal model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function goal()
+    {
+        return $this->hasOne(UserGoal::class); // If each user has one goal
     }
 }

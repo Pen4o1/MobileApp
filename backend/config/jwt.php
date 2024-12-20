@@ -297,10 +297,4 @@ return [
         'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class,
 
     ],
-
-    // these are the custom claims
-    'custom_claims' => [
-    'email',
-    ],
-
 ];
