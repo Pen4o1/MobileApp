@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Auth;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
 
 class GoalController extends Controller
 {
@@ -20,26 +19,45 @@ class GoalController extends Controller
 
         $user = Auth::user();
 
-        $weight = $user->weight;
-        $height = $user->height;
-        $birthdate = $user->birthdate;
-        $gender = $user->gender; 
-        
-        $age = Carbon::parse($birthdate)->age;
-
-        if (!$weight || !$height || !$age || !$gender) {
+        if(!$user) {
             return response()->json([
-                'message' => 'User data (weight, height, age, gender) is incomplete.',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+
+        // Required fields for the user profile
+        $requiredFields = ['weight', 'height', 'birthdate', 'gender'];
+        $completedFields = [];
+        $incompleteFields = [];
+        $profileData = [];
+
+        // Check which fields are completed or missing
+        foreach ($requiredFields as $field) {
+            if ($user->$field) {
+                $completedFields[] = $field;
+                $profileData[$field] = $user->$field;
+            } else {
+                $incompleteFields[] = $field;
+            }
+        }
+
+        // Check if any required fields are incomplete
+        if (count($incompleteFields) > 0) {
+            return response()->json([
+                'message' => 'User data ('.implode(', ', $incompleteFields).') is incomplete.',
             ], 400);
         }
 
-        $bmr = $this->calculateBMR($weight, $height, $age, $gender);
+        // Calculate age from birthdate
+        $age = Carbon::parse($user->birthdate)->age;
 
+        // Perform calculations only if the profile has all required data
+        $bmr = $this->calculateBMR($user->weight, $user->height, $age, $user->gender);
         $activityMultiplier = $this->getActivityMultiplier($validated['activity_level']);
         $maintenanceCalories = $bmr * $activityMultiplier;
-
         $calories = $this->adjustCaloriesForGoal($maintenanceCalories, $validated['goal']);
 
+        // Save or update the user's goal
         $user->goal()->updateOrCreate(
             ['user_id' => $user->id], 
             [
@@ -49,12 +67,22 @@ class GoalController extends Controller
             ]
         );
 
+        // Log the goal update or creation
+        Log::info('Goal updated or created', [
+            'user_id' => $user->id,
+            'activity_level' => $validated['activity_level'],
+            'goal' => $validated['goal'],
+            'calories' => $calories,
+        ]);
+
+        // Return the response
         return response()->json([
             'message' => 'Goal saved successfully.',
             'calories' => $calories,
         ]);
     }
 
+    // Calculate Basal Metabolic Rate (BMR)
     private function calculateBMR($weight, $height, $age, $gender)
     {
         if ($gender === 'male') {
@@ -64,6 +92,7 @@ class GoalController extends Controller
         }
     }
 
+    // Get the activity multiplier based on activity level
     private function getActivityMultiplier($activityLevel)
     {
         $multipliers = [
@@ -77,6 +106,7 @@ class GoalController extends Controller
         return $multipliers[$activityLevel] ?? 1.2; 
     }
 
+    // Adjust calories based on the goal (lose, gain, or maintain)
     private function adjustCaloriesForGoal($maintenanceCalories, $goal)
     {
         if ($goal === 'lose') {

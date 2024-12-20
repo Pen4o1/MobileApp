@@ -133,7 +133,7 @@ class RegisterController extends Controller
             'compleated' => true,
         ]);
 
-        $token = auth()->claims(['password' => $user->password, 'email' => $user->email])->attempt($request->only('email', 'password'));
+        $token = auth()->getJWTCustomClaims(['password' => $user->password, 'email' => $user->email])->attempt($request->only('email', 'password'));
 
         $cookie = cookie(
             'jwt_token',

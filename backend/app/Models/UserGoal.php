@@ -13,4 +13,9 @@ class UserGoal extends Model
         'goal', 
         'caloric_target'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

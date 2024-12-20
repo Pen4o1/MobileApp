@@ -80,7 +80,7 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <GoogleOAuthProvider clientId="742935799054-antfglui429eb8aj3ui01pogffeo8iae.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID}>
       <UserContext.Provider
         value={{ isLoggedIn, setIsLoggedIn, isCompleated, setIsCompleated }}
       >
