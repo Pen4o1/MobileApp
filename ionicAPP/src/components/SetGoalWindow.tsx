@@ -17,8 +17,8 @@ const SetGoalModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  const [activityLevel, setActivityLevel] = useState<string>('')
-  const [goal, setGoal] = useState<string>('')
+  const [activityLevel, setActivityLevel] = useState('')
+  const [goal, setGoal] = useState('')
 
   const handleSave = async () => {
     const payload = { goal, activityLevel }

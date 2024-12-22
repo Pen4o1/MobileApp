@@ -53,6 +53,7 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::post('/save-goal', [GoalController::class, 'saveGoal']);
 });
 
+
 Route::middleware(['auth:sanctum', \Fruitcake\Cors\HandleCors::class])->get('/user', function (Request $request) {
     return $request->user();
 });

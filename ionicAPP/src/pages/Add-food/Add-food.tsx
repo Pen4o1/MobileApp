@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   IonContent,
   IonHeader,
@@ -14,118 +14,131 @@ import {
   IonCol,
   IonModal,
   IonLabel,
-} from '@ionic/react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import '../../components/styles/add-food-style.css';
+} from '@ionic/react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+import '../../components/styles/add-food-style.css'
 
 const AddFood: React.FC = () => {
-  const [foodSentence, setFoodSentence] = useState(''); // For nutrition data
-  const [recipeName, setRecipeName] = useState(''); // For recipe name
-  const [nutritionData, setNutritionData] = useState<any>(null);
-  const [recipeData, setRecipeData] = useState<any>(null);
-  const [errorMessageNutrition, setErrorMessageNutrition] = useState<string | null>(null);
-  const [errorMessageRecipe, setErrorMessageRecipe] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  
+  const [foodSentence, setFoodSentence] = useState('') // For nutrition data
+  const [recipeName, setRecipeName] = useState('') // For recipe name
+  const [nutritionData, setNutritionData] = useState<any>(null)
+  const [recipeData, setRecipeData] = useState<any>(null)
+  const [errorMessageNutrition, setErrorMessageNutrition] = useState<
+    string | null
+  >(null)
+  const [errorMessageRecipe, setErrorMessageRecipe] = useState<string | null>(
+    null
+  )
+  const [loading, setLoading] = useState(false)
+
   // Separate states for modals
-  const [showNutritionModal, setShowNutritionModal] = useState(false);
-  const [showRecipeModal, setShowRecipeModal] = useState(false);
+  const [showNutritionModal, setShowNutritionModal] = useState(false)
+  const [showRecipeModal, setShowRecipeModal] = useState(false)
 
   // Fetch nutrition data
   const handleTextInput = async () => {
     if (!foodSentence.trim()) {
-      setErrorMessageNutrition('Please enter a valid food description.');
-      return;
+      setErrorMessageNutrition('Please enter a valid food description.')
+      return
     }
 
-    setLoading(true);
-    setErrorMessageNutrition(null);
+    setLoading(true)
+    setErrorMessageNutrition(null)
 
     try {
-      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY;
+      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY
       if (!apiKeyNinja) {
-        throw new Error('API Key is missing. Please configure it in the environment file.');
+        throw new Error(
+          'API Key is missing. Please configure it in the environment file.'
+        )
       }
-      console.log(`Fetching nutrition data for: ${foodSentence}`);
+      console.log(`Fetching nutrition data for: ${foodSentence}`)
 
       const response = await fetch(
-        'https://api.calorieninjas.com/v1/nutrition?query=' + encodeURIComponent(foodSentence),
+        'https://api.calorieninjas.com/v1/nutrition?query=' +
+          encodeURIComponent(foodSentence),
         {
           method: 'GET',
           headers: {
             'X-Api-Key': apiKeyNinja,
           },
         }
-      );
+      )
 
       if (!response.ok) {
-        throw new Error('Failed to fetch nutrition data.');
+        throw new Error('Failed to fetch nutrition data.')
       }
 
-      const data = await response.json();
-      setNutritionData(data.items);
-      setShowNutritionModal(true);
-      setShowRecipeModal(false);
+      const data = await response.json()
+      setNutritionData(data.items)
+      setShowNutritionModal(true)
+      setShowRecipeModal(false)
     } catch (error) {
-      setErrorMessageNutrition('Error fetching nutrition information. Please try again.');
-      console.error(error);
+      setErrorMessageNutrition(
+        'Error fetching nutrition information. Please try again.'
+      )
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Fetch recipe data
   const handleRecepies = async () => {
     if (!recipeName.trim()) {
-      setErrorMessageRecipe('Please enter a valid recipe name.');
-      return;
+      setErrorMessageRecipe('Please enter a valid recipe name.')
+      return
     }
-  
-    setLoading(true);
-    setErrorMessageRecipe(null);
-  
+
+    setLoading(true)
+    setErrorMessageRecipe(null)
+
     try {
-      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY;
+      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY
       if (!apiKeyNinja) {
-        throw new Error('API Key is missing. Please configure it in the environment file.');
+        throw new Error(
+          'API Key is missing. Please configure it in the environment file.'
+        )
       }
-      console.log(`Fetching recipe data for: ${recipeName}`);
-  
+      console.log(`Fetching recipe data for: ${recipeName}`)
+
       const response = await fetch(
-        'https://api.calorieninjas.com/v1/recipe?query=' + encodeURIComponent(recipeName),
+        'https://api.calorieninjas.com/v1/recipe?query=' +
+          encodeURIComponent(recipeName),
         {
           method: 'GET',
           headers: {
             'X-Api-Key': apiKeyNinja,
           },
         }
-      );
-  
+      )
+
       if (!response.ok) {
-        throw new Error('Failed to fetch recipe data.');
+        throw new Error('Failed to fetch recipe data.')
       }
-  
-      const data = await response.json();
-      console.log('Recipe data:', data); // Check the response structure
-  
+
+      const data = await response.json()
+      console.log('Recipe data:', data) // Check the response structure
+
       if (data.items && data.items.length > 0) {
-        setRecipeData(data.items); // Update recipe data state
-        setShowRecipeModal(true);  // Show recipe modal
-        setShowNutritionModal(false); // Hide nutrition modal
+        setRecipeData(data.items) // Update recipe data state
+        setShowRecipeModal(true) // Show recipe modal
+        setShowNutritionModal(false) // Hide nutrition modal
       } else {
-        setErrorMessageRecipe('No recipe data found for your query.');
+        setErrorMessageRecipe('No recipe data found for your query.')
       }
-  
     } catch (error) {
-      setErrorMessageRecipe('Error fetching recipe information. Please try again.');
-      console.error(error);
+      setErrorMessageRecipe(
+        'Error fetching recipe information. Please try again.'
+      )
+      console.error(error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <IonPage>
@@ -133,7 +146,12 @@ const AddFood: React.FC = () => {
         <IonGrid>
           <IonRow>
             <IonCol size="12">
-              <Swiper spaceBetween={50} slidesPerView={1} loop={true} pagination={{ clickable: true }}>
+              <Swiper
+                spaceBetween={50}
+                slidesPerView={1}
+                loop={true}
+                pagination={{ clickable: true }}
+              >
                 <SwiperSlide>
                   <IonButton expand="block" color="primary">
                     Scan Barcode
@@ -148,7 +166,12 @@ const AddFood: React.FC = () => {
                       onIonChange={(e) => setFoodSentence(e.detail.value!)}
                     />
                   </IonItem>
-                  <IonButton expand="block" color="primary" onClick={handleTextInput} disabled={loading}>
+                  <IonButton
+                    expand="block"
+                    color="primary"
+                    onClick={handleTextInput}
+                    disabled={loading}
+                  >
                     {loading ? 'Fetching...' : 'Get Nutrition'}
                   </IonButton>
                   {errorMessageNutrition && (
@@ -173,7 +196,12 @@ const AddFood: React.FC = () => {
                       onIonChange={(e) => setRecipeName(e.detail.value!)}
                     />
                   </IonItem>
-                  <IonButton expand="block" color="primary" onClick={handleRecepies} disabled={loading}>
+                  <IonButton
+                    expand="block"
+                    color="primary"
+                    onClick={handleRecepies}
+                    disabled={loading}
+                  >
                     {loading ? 'Fetching Recipes...' : 'Get Recipe Info'}
                   </IonButton>
                   {errorMessageRecipe && (
@@ -188,7 +216,10 @@ const AddFood: React.FC = () => {
         </IonGrid>
 
         {/* Nutrition Information Modal */}
-        <IonModal isOpen={showNutritionModal} onDidDismiss={() => setShowNutritionModal(false)}>
+        <IonModal
+          isOpen={showNutritionModal}
+          onDidDismiss={() => setShowNutritionModal(false)}
+        >
           <IonHeader>
             <IonToolbar>
               <IonTitle>Nutrition Information</IonTitle>
@@ -203,14 +234,27 @@ const AddFood: React.FC = () => {
                       <IonItem key={index}>
                         <IonLabel>
                           <h2>{item.name}</h2>
-                          <p><strong>Calories:</strong> {item.calories} kcal</p>
-                          <p><strong>Protein:</strong> {item.protein_g}g</p>
-                          <p><strong>Fat:</strong> {item.fat_total_g}g</p>
-                          <p><strong>Carbohydrates:</strong> {item.carbohydrates_total_g}g</p>
+                          <p>
+                            <strong>Calories:</strong> {item.calories} kcal
+                          </p>
+                          <p>
+                            <strong>Protein:</strong> {item.protein_g}g
+                          </p>
+                          <p>
+                            <strong>Fat:</strong> {item.fat_total_g}g
+                          </p>
+                          <p>
+                            <strong>Carbohydrates:</strong>{' '}
+                            {item.carbohydrates_total_g}g
+                          </p>
                         </IonLabel>
                       </IonItem>
                     ))}
-                    <IonButton expand="block" color="primary" onClick={() => setShowNutritionModal(false)}>
+                    <IonButton
+                      expand="block"
+                      color="primary"
+                      onClick={() => setShowNutritionModal(false)}
+                    >
                       Close
                     </IonButton>
                   </IonCol>
@@ -225,7 +269,10 @@ const AddFood: React.FC = () => {
         </IonModal>
 
         {/* Recipe Information Modal */}
-        <IonModal isOpen={showRecipeModal} onDidDismiss={() => setShowRecipeModal(false)}>
+        <IonModal
+          isOpen={showRecipeModal}
+          onDidDismiss={() => setShowRecipeModal(false)}
+        >
           <IonHeader>
             <IonToolbar>
               <IonTitle>Recipe Information</IonTitle>
@@ -244,7 +291,11 @@ const AddFood: React.FC = () => {
                         </IonLabel>
                       </IonItem>
                     ))}
-                    <IonButton expand="block" color="primary" onClick={() => setShowRecipeModal(false)}>
+                    <IonButton
+                      expand="block"
+                      color="primary"
+                      onClick={() => setShowRecipeModal(false)}
+                    >
                       Close
                     </IonButton>
                   </IonCol>
@@ -259,7 +310,7 @@ const AddFood: React.FC = () => {
         </IonModal>
       </IonContent>
     </IonPage>
-  );
-};
+  )
+}
 
-export default AddFood;
+export default AddFood

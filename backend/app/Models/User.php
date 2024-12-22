@@ -11,6 +11,8 @@ use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\UserGoal; 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -94,18 +96,12 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [
-            'password' => $this->password,
             'email' => $this->email,
             'google_id' => $this->google_id,
         ];
     }
 
-    /**
-     * Define a one-to-one relationship with the Goal model.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function goal()
+    public function goal(): HasOne
     {
         return $this->hasOne(UserGoal::class); // If each user has one goal
     }

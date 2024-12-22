@@ -13,86 +13,66 @@ class GoalController extends Controller
     public function saveGoal(Request $request)
     {
         $validated = $request->validate([
-            'activity_level' => 'required|string', 
-            'goal' => 'required|string',          
+            'activityLevel' => 'required|string|in:sedentary,lightly_active,moderately_active,very_active,extra_active',
+            'goal' => 'required|string|in:maintain,lose,gain',
         ]);
+
+        $activityLevel = $validated['activityLevel'];
+        $goal = $validated['goal'];
 
         $user = Auth::user();
 
-        if(!$user) {
+        if (!$user) {
             return response()->json([
                 'message' => 'User not authenticated',
             ], 401);
         }
 
-        // Required fields for the user profile
-        $requiredFields = ['weight', 'height', 'birthdate', 'gender'];
-        $completedFields = [];
-        $incompleteFields = [];
-        $profileData = [];
+        $weight = $user->kilos;
+        $height = $user->height;
+        $birthdate = $user->birthdate;
+        $gender = $user->gender;
 
-        // Check which fields are completed or missing
-        foreach ($requiredFields as $field) {
-            if ($user->$field) {
-                $completedFields[] = $field;
-                $profileData[$field] = $user->$field;
-            } else {
-                $incompleteFields[] = $field;
-            }
-        }
-
-        // Check if any required fields are incomplete
-        if (count($incompleteFields) > 0) {
+        if (!$weight || !$height || !$birthdate || !$gender) {
             return response()->json([
-                'message' => 'User data ('.implode(', ', $incompleteFields).') is incomplete.',
+                'message' => 'User data (weight, height, birthdate, gender) is incomplete.',
             ], 400);
         }
 
-        // Calculate age from birthdate
-        $age = Carbon::parse($user->birthdate)->age;
+        $age = Carbon::parse($birthdate)->age;
 
-        // Perform calculations only if the profile has all required data
-        $bmr = $this->calculateBMR($user->weight, $user->height, $age, $user->gender);
-        $activityMultiplier = $this->getActivityMultiplier($validated['activity_level']);
+        // BMR (Basal Metabolic Rate) ny Mifflin-St Jeor
+        $bmr = $this->calculateBMR($weight, $height, $age, $gender);
+        // Activity multiplier based on activity level
+        $activityMultiplier = $this->getActivityMultiplier($activityLevel);
+        // Maintenance calories (BMR * activity multiplier)
         $maintenanceCalories = $bmr * $activityMultiplier;
-        $calories = $this->adjustCaloriesForGoal($maintenanceCalories, $validated['goal']);
+        $calories = $this->adjustCaloriesForGoal($maintenanceCalories, $goal);
 
-        // Save or update the user's goal
         $user->goal()->updateOrCreate(
-            ['user_id' => $user->id], 
+            ['user_id' => $user->id],
             [
-                'activity_level' => $validated['activity_level'],
-                'goal' => $validated['goal'],
-                'calories' => $calories,
+                'activity_level' => $activityLevel,
+                'goal' => $goal,
+                'caloric_target' => $calories, 
             ]
         );
 
-        // Log the goal update or creation
-        Log::info('Goal updated or created', [
-            'user_id' => $user->id,
-            'activity_level' => $validated['activity_level'],
-            'goal' => $validated['goal'],
-            'calories' => $calories,
-        ]);
-
-        // Return the response
         return response()->json([
             'message' => 'Goal saved successfully.',
-            'calories' => $calories,
+            'calories' => $calories,  
         ]);
     }
 
-    // Calculate Basal Metabolic Rate (BMR)
     private function calculateBMR($weight, $height, $age, $gender)
     {
         if ($gender === 'male') {
             return 10 * $weight + 6.25 * $height - 5 * $age + 5;
-        } else { 
+        } else {
             return 10 * $weight + 6.25 * $height - 5 * $age - 161;
         }
     }
 
-    // Get the activity multiplier based on activity level
     private function getActivityMultiplier($activityLevel)
     {
         $multipliers = [
@@ -103,18 +83,17 @@ class GoalController extends Controller
             'extra_active' => 1.9,
         ];
 
-        return $multipliers[$activityLevel] ?? 1.2; 
+        return $multipliers[$activityLevel] ?? 1.2;
     }
 
-    // Adjust calories based on the goal (lose, gain, or maintain)
     private function adjustCaloriesForGoal($maintenanceCalories, $goal)
     {
         if ($goal === 'lose') {
-            return $maintenanceCalories - 0.2 * $maintenanceCalories; 
+            return $maintenanceCalories - 0.2 * $maintenanceCalories; // can change in the future based on how fast the user want to lose weight
         } elseif ($goal === 'gain') {
-            return $maintenanceCalories + 0.2 * $maintenanceCalories; 
+            return $maintenanceCalories + 0.2 * $maintenanceCalories; // can change in the future based on how fast the user want to gain weight
         }
 
-        return $maintenanceCalories; 
+        return $maintenanceCalories;
     }
 }
