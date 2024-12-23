@@ -13,18 +13,20 @@ class DailyMacrosController extends Controller
 {
     public function storeCal(Request $request) {
         $validate = $request->validate([
-            'consumend_cal' => 'required|numeric|min:1',
+            'consumed_cal' => 'required|numeric|min:1',
         ]);
         
         $user = Auth::user();
-
         $date = Carbon::today();
-
-        $dailyMacros = DailyCalories::UpdateOrCreate([
+    
+        $dailyMacros = DailyCal::firstOrCreate(
             ['user_id' => $user->id, 'date' => $date],
-            ['calories_consumed' => $validated['calories_consumed']]
-        ]);  
-        
+            ['calories_consumed' => 0] 
+        );
+    
+        $dailyMacros->calories_consumed += $validate['consumed_cal'];
+        $dailyMacros->save();
+    
         return response()->json([
             'message' => 'Calories saved successfully'
         ]);
