@@ -22,12 +22,6 @@ class GoalController extends Controller
 
         $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not authenticated',
-            ], 401);
-        }
-
         $weight = $user->kilos;
         $height = $user->height;
         $birthdate = $user->birthdate;
