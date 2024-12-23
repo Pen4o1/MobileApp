@@ -24,6 +24,7 @@ import './components/styles/app-style.css'
 import NutritionInfo from './components/nutritionScreen'
 import CompleteRegistration from './pages/Complete-registration/Complete-registaration'
 import SetGoalWindow from './components/SetGoalWindow'
+import TestCal from './pages/Add-food/Test-add-foods'
 
 import '@ionic/react/css/core.css'
 import '@ionic/react/css/normalize.css'
@@ -112,6 +113,9 @@ const App: React.FC = () => {
                 <Route exact path="/nutrition-info" component={NutritionInfo} />
                 <Route exact path="/complete-registaration">
                   <CompleteRegistration />
+                </Route>
+                <Route exact path="/test">
+                  <TestCal />
                 </Route>
               </IonRouterOutlet>
 

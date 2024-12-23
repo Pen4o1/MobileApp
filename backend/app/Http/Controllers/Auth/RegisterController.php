@@ -13,7 +13,6 @@ class RegisterController extends Controller
 {
     public function Register(Request $request)
     {
-        // Define all validation rules
         $first_name_validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z]+$/']
         ]);
@@ -133,7 +132,7 @@ class RegisterController extends Controller
             'compleated' => true,
         ]);
 
-        $token = auth()->getJWTCustomClaims(['password' => $user->password, 'email' => $user->email])->attempt($request->only('email', 'password'));
+        $token = auth()->claims(['password' => $user->password, 'email' => $user->email])->attempt($request->only('email', 'password'));
 
         $cookie = cookie(
             'jwt_token',

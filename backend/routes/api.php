@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Middleware\JwtCookieMiddleware;
 use App\Http\Controllers\Auth\GoalController;
 use App\Http\Controllers\Auth\DailyMacrosController;
+use App\Http\Controllers\Auth\GoogleController;
 
 
 
@@ -52,10 +53,15 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::get('/profile-status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
     Route::post('/update-profile', [ProfileCompleteCotroller::class, 'completeProfile']);
     Route::post('/save-goal', [GoalController::class, 'saveGoal']);
-    Route::post('/save-daily-macros', [DailyMacrosController::class, 'saveDailyMacros']);
+    Route::post('/save-daily-macros', [DailyMacrosController::class, 'storeCal']);
     Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
 });
 
+
+Route::controller(GoogleController::class)->group(function () {
+    Route::get('auth/google', 'redirectToGoogle');
+    Route::get('auth/callback', 'handleGoogleCallback');
+});
 
 Route::middleware(['auth:sanctum', \Fruitcake\Cors\HandleCors::class])->get('/user', function (Request $request) {
     return $request->user();

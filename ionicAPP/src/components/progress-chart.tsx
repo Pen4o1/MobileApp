@@ -10,6 +10,7 @@ import './styles/home.css'
 const ProgressChart: React.FC = () => {
   const [dailyCalories, setDailyCalories] = useState<number>(0)
   const [targetCalories, setTargetCalories] = useState<number>(0)
+  const [warning, setWarning] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,14 @@ const ProgressChart: React.FC = () => {
         const { daily_calories, goal } = data
         setDailyCalories(daily_calories || 0)
         setTargetCalories(goal || 0)
+
+        if (daily_calories > goal) {
+          setWarning(
+            `Warning: You have exceeded your calorie goal! ${daily_calories} of ${goal}`
+          )
+        } else {
+          setWarning(null)
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -85,6 +94,8 @@ const ProgressChart: React.FC = () => {
           </text>
         </RadialBarChart>
       </ResponsiveContainer>
+
+      {warning}
     </div>
   )
 }

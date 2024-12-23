@@ -47,7 +47,7 @@ class GoogleController extends Controller
             'gender' =>  $gender,
         ]);
 
-        $token = auth()->claims([ 'google_id' => $user->google_id, 'email' => $user->email ])->attempt($request->only('google_id', 'email'));
+        $token = JWTAuth::fromUser($user);
 
         \Log::info('Generated JWT Token: ' . $token);  
 
