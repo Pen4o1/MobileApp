@@ -56,9 +56,7 @@ class GoogleController extends Controller
 
                 $user = User::where('email', $googleUser->getEmail())->first();
 
-                if ($user) {
-                    $compleated = $user->compleated;
-        
+                if ($user) {        
                     if (!$compleated) {
                         $user->update([
                             'first_name' => $givenName ?? $googleUser->user['given_name'] ?? $googleUser->getName(),
