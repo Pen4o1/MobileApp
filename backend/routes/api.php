@@ -13,6 +13,7 @@ use App\Http\Middleware\JwtCookieMiddleware;
 use App\Http\Controllers\Auth\GoalController;
 use App\Http\Controllers\Auth\DailyMacrosController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\MealPlanerController;
 
 
 
@@ -55,6 +56,7 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::post('/save-goal', [GoalController::class, 'saveGoal']);
     Route::post('/save-daily-macros', [DailyMacrosController::class, 'storeCal']);
     Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
+    Route::post('/generate-meal-plan', [MealPlanerController::class, 'generateMealPlan']);
 });
 
 

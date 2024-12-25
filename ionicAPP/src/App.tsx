@@ -25,6 +25,7 @@ import NutritionInfo from './components/nutritionScreen'
 import CompleteRegistration from './pages/Complete-registration/Complete-registaration'
 import SetGoalWindow from './components/SetGoalWindow'
 import TestCal from './pages/Add-food/Test-add-foods'
+import SetMealPlan from './components/MealPlan'
 
 import '@ionic/react/css/core.css'
 import '@ionic/react/css/normalize.css'
@@ -52,6 +53,7 @@ const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isCompleated, setIsCompleated] = useState(false)
   const [showGoalWindow, setShowGoalWindow] = useState(false)
+  const [showMealWindow, setShowMealWindow] = useState(false)
 
   useEffect(() => {
     const validateToken = async () => {
@@ -144,6 +146,12 @@ const App: React.FC = () => {
                   >
                     <IonButton>Set Goal</IonButton>
                   </IonTabButton>
+                  <IonTabButton
+                    tab="Set Meal Plan"
+                    onClick={() => setShowMealWindow(true)}
+                  >
+                    <IonButton>Set Meal Plan</IonButton>
+                  </IonTabButton>
                 </IonTabBar>
               )}
 
@@ -162,6 +170,11 @@ const App: React.FC = () => {
             <SetGoalWindow
               isOpen={showGoalWindow}
               onClose={() => setShowGoalWindow(false)}
+            />
+
+            <SetMealPlan
+              isOpen={showMealWindow}
+              onClose={() => setShowMealWindow(false)}
             />
           </IonReactRouter>
         </IonApp>

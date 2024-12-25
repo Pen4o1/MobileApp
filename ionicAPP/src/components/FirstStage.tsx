@@ -13,6 +13,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonLoading, // Import IonLoading
 } from '@ionic/react'
 import { eye, eyeOff, arrowForwardCircle } from 'ionicons/icons'
 
@@ -36,6 +37,7 @@ const FirstStage: React.FC<FirstStageProps> = ({
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false) // State for loading indicator
 
   const isFormValid = () => {
     return (
@@ -54,6 +56,7 @@ const FirstStage: React.FC<FirstStageProps> = ({
       return
     }
     setMessage(null)
+    setLoading(true) // Start loading
     handleSubmit()
   }
 
@@ -142,23 +145,21 @@ const FirstStage: React.FC<FirstStageProps> = ({
                 <IonButton
                   expand="block"
                   onClick={handleNextClick}
-                  disabled={!isFormValid()}
+                  disabled={!isFormValid() || loading}
                 >
                   <IonIcon icon={arrowForwardCircle} slot="start" />
-                  Next
+                  {loading ? 'Loading...' : 'Next'}
                 </IonButton>
 
-                <div className="social-button">
-                  <a
-                    href="http://127.0.0.1:8000/auth/google"
-                    className="social-link inline-block px-3 py-2 rounded-lg shadow"
-                    title="Login with Google"
-                  >
-                    <span style={{ fontSize: '16px', verticalAlign: 'middle' }}>
-                      Login with Google
-                    </span>
-                  </a>
-                </div>
+                <IonButton
+                  href="http://127.0.0.1:8000/api/auth/google"
+                  expand="block"
+                  color="medium"
+                  className="social-button"
+                  disabled={loading}
+                >
+                  Continue with Google
+                </IonButton>
 
                 {message && (
                   <IonText color="medium" className="error-message">
@@ -169,6 +170,12 @@ const FirstStage: React.FC<FirstStageProps> = ({
             </IonCol>
           </IonRow>
         </IonGrid>
+
+        <IonLoading
+          isOpen={loading}
+          message="Please wait..."
+          onDidDismiss={() => setLoading(false)}
+        />
       </IonContent>
     </IonPage>
   )
