@@ -57,15 +57,13 @@ class GoogleController extends Controller
                 $user = User::where('email', $googleUser->getEmail())->first();
 
                 if ($user) {        
-                    if (!$compleated) {
                         $user->update([
-                            'first_name' => $givenName ?? $googleUser->user['given_name'] ?? $googleUser->getName(),
+                            'first_name' => $givenName ?? $googleUser->user['given_name'] ?? $googleUser->getName(), // if the user hasnt set his name to get his name
                             'last_name' => $familyName ?? $googleUser->user['family_name'] ?? '',
                             'gender' => $gender,
                             'birthdate' => $birthdate,
                             'compleated' => $user->compleated,
                         ]);
-                    }
                 } else {
                     $user = User::create([
                         'email' => $googleUser->getEmail(),
