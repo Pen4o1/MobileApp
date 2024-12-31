@@ -1,2 +1,23 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+:root {
+  --container-width: 80%;
+  --container-margin: 40px auto;
+}
+
+/* Media query for medium screens (e.g., tablets) */
+@media (max-width: 768px) {
+  :root {
+    --container-width: 90%;
+    --container-margin: 20px auto;
+  }
+}
+
+/* Media query for small screens (e.g., mobile devices) */
+@media (max-width: 480px) {
+  :root {
+    --container-width: 100%;
+    --container-margin: 10px auto;
+  }
+}
