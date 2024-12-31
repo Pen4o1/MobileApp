@@ -14,11 +14,13 @@ use App\Http\Controllers\Auth\GoalController;
 use App\Http\Controllers\Auth\DailyMacrosController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\MealPlanerController;
+use App\Http\Controllers\FatSecretController;
 
 
 
 Route::post('/register', [RegisterController::class, 'Register']);
 Route::post('/login', [LoginController::class, 'Login']);
+Route::get('/foods/search', [FatSecretController::class, 'search']);
 
 Route::post('/validate-token', function (Request $request) {
     try {

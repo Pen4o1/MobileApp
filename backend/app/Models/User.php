@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\UserGoal; 
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\MealPlans;
 
 
 class User extends Authenticatable implements JWTSubject
@@ -104,5 +105,10 @@ class User extends Authenticatable implements JWTSubject
     public function goal(): HasOne
     {
         return $this->hasOne(UserGoal::class); // If each user has one goal
+    }
+
+    public function meal_plan(): HasOne
+    {
+        return $this->hasOne(MealPlans::class); 
     }
 }

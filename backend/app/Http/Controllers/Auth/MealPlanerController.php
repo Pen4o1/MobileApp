@@ -5,43 +5,43 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use App\Model\MealPlan;
+use App\Models\MealPlans;
+use App\Services\FatSecretService;
 
 class MealPlanerController extends Controller
 {
+    protected $fatSecretService;
+
+    public function __construct(FatSecretService $fatSecretService)
+    {
+        $this->fatSecretService = $fatSecretService; // Inject the FatSecretService
+    }
+
     public function generateMealPlan(Request $request)
     {
-        $validated = $request->validate([
-            'meals_per_day' => 'required|integer|min:1|max:6',
-        ]);
+        $mealsPerDay = $request->input('meals_per_day');
 
-        if(!$validated['meals_per_day']) {
-            return response()->json(['error' => 'Meals per day is required'], 400);
+        if (!in_array($mealsPerDay, [1, 2, 3, 4, 5, 6])) {
+            return response()->json(['error' => 'Meals per day must be between 1 and 6'], 400);
         }
 
         $user = Auth::user();
 
-        if (!$user || !$user->calorie_goal) {
+        if (!$user || !$user->goal()->value('caloric_target')) {
             return response()->json(['error' => 'Calorie goal not set for the user'], 400);
         }
 
-        $dailyCalories = $user->calorie_goal; 
-        $mealsPerDay = $validated['meals_per_day'];
+        $dailyCalories = $user->goal()->value('caloric_target'); 
 
-        $response = Http::withHeaders([
-            'X-Api-Key' => config('services.api_ninjas.key'),
-        ])->get('https://api.api-ninjas.com/v1/nutrition');
+        $mealCalories = $dailyCalories / $mealsPerDay;
 
-        if ($response->failed()) {
-            return response()->json(['error' => 'Failed to fetch food data'], 500);
+        try {
+            $mealPlan = $this->generateMealPlanForDay($mealCalories, $mealsPerDay);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating meal plan: ' . $e->getMessage()], 500);
         }
 
-        $foods = $response->json();
-
-        $mealPlan = $this->generatePlan($foods, $dailyCalories, $mealsPerDay);
-
-        $savedPlan = MealPlan::updateOrCreate(
+        $user->meal_plan()->updateOrCreate(
             ['user_id' => $user->id],
             ['plan' => $mealPlan]
         );
@@ -52,38 +52,72 @@ class MealPlanerController extends Controller
         ]);
     }
 
-    private function generatePlan($foods, $dailyCalories, $mealsPerDay)
+    private function generateMealPlanForDay($mealCalories, $mealsPerDay)
     {
-        $plan = [];
-        $mealCalories = $dailyCalories / $mealsPerDay; 
-
+        $mealPlan = [];
+    
         foreach (range(1, $mealsPerDay) as $mealIndex) {
             $mealName = "Meal $mealIndex";
             $mealItems = [];
             $currentCalories = 0;
-
-            foreach ($foods as $food) {
-                if ($currentCalories + $food['calories'] <= $mealCalories) {
-                    $mealItems[] = $food;
-                    $currentCalories += $food['calories'];
+    
+            try {
+                $recipes = $this->fatSecretService->searchRecipes('meal', [
+                    'max_results' => $mealsPerDay, 
+                    'calories.from' => $mealCalories * 0.7, 
+                    'calories.to' => $mealCalories * 1.3,  
+                ]);
+    
+                \Log::info('FatSecret API response for Meal ' . $mealIndex, ['response' => $recipes]);
+    
+                if (isset($recipes['response']['recipes']['recipe']) && is_array($recipes['response']['recipes']['recipe']) && count($recipes['response']['recipes']['recipe']) > 0) {
+                    foreach ($recipes['response']['recipes']['recipe'] as $recipe) {
+                        \Log::info('Processing recipe for Meal ' . $mealIndex, ['recipe' => $recipe]);
+    
+                        if ($currentCalories + $recipe['recipe_nutrition']['calories'] <= $mealCalories) {
+                            $mealItems[] = $recipe;
+                            $currentCalories += $recipe['recipe_nutrition']['calories'];
+                        }
+    
+                        if ($currentCalories >= $mealCalories) {
+                            break;
+                        }
+                    }
+                } else {
+                    // Handle case where no recipes are found
+                    \Log::warning("No recipes found for meal $mealIndex or response format is incorrect.");
+                    $fallbackFood = $this->fatSecretService->searchFoods('protein shake'); 
+                    if (isset($fallbackFood['foods'][0])) {
+                        $mealItems[] = $fallbackFood['foods'][0]; 
+                        $currentCalories += $fallbackFood['foods'][0]['calories'];
+                    }
                 }
-
-                if ($currentCalories >= $mealCalories) {
-                    break;
+    
+                // If no recipe met the calorie requirement, add a fallback food
+                if ($currentCalories < $mealCalories) {
+                    \Log::info("Fallback triggered for $mealName due to insufficient calories.");
+                    $fallbackFood = $this->fatSecretService->searchFoods('protein shake'); 
+                    if (isset($fallbackFood['foods'][0])) {
+                        $mealItems[] = $fallbackFood['foods'][0]; 
+                        $currentCalories += $fallbackFood['foods'][0]['calories'];
+                    }
                 }
+            } catch (\Exception $e) {
+                throw new \Exception("Error fetching recipes for meal $mealIndex: " . $e->getMessage());
             }
-
-            $plan[$mealName] = $mealItems;
+    
+            \Log::info("Final meal for $mealName", ['mealItems' => $mealItems]);
+    
+            $mealPlan[$mealName] = $mealItems;
         }
-
-        return $plan;
+    
+        return $mealPlan;
     }
-
 
     public function getMealPlan(Request $request)
     {
         $user = $request->user();
-        $mealPlan = MealPlan::where('user_id', $user->id)->first();
+        $mealPlan = MealPlans::where('user_id', $user->id)->first();
 
         if (!$mealPlan) {
             return response()->json(['error' => 'No meal plan found'], 404);

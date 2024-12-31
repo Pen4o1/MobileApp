@@ -25,7 +25,7 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  const [mealsPerDay, setMealsPerDay] = useState('3')
+  const [meals_per_day, setMeals_per_day] = useState(3) 
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +35,7 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     setError(null)
 
     try {
-      const payload = { mealsPerDay }
+      const payload = { meals_per_day } 
       const response = await fetch(
         'http://127.0.0.1:8000/api/generate-meal-plan',
         {
@@ -78,9 +78,11 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
           </IonLabel>
           <IonInput
             type="number"
-            value={mealsPerDay}
-            onIonChange={(e) => setMealsPerDay(e.detail.value!)}
+            value={meals_per_day}
+            onIonChange={(e) => setMeals_per_day(Number(e.detail.value!))}
             disabled={loading}
+            min={1} 
+            max={6} 
           />
         </IonItem>
 

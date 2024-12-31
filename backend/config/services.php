@@ -41,4 +41,11 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'fatsecret' => [
+        'client_id' => env('FATSECRET_CLIENT_ID'),
+        'client_secret' => env('FATSECRET_CLIENT_SECRET'),
+        'api_url' => env('FATSECRET_API_URL'),
+        'token_url' => env('FATSECRET_TOKEN_URL'),
+    ]
+
 ];
