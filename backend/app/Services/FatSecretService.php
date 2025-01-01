@@ -62,19 +62,30 @@ class FatSecretService
             'method' => 'recipes.search.v3',
             'search_expression' => $query,
             'format' => 'json',
-            'max_results' => 20,
+            'max_results' => 50, 
         ], $filters);
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->get($this->apiUrl, $params);
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+            ])->get($this->apiUrl, $params);
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->successful()) {
+                \Log::info('Recipe API Response:', ['response' => $response->json()]);
+                return $response->json();
+            }
+
+            \Log::error('Recipe Search Failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during Recipe Search:', ['message' => $e->getMessage()]);
         }
 
-        throw new \Exception('Failed to search recipes: ' . $response->body());
+        throw new \Exception('Failed to search recipes.');
     }
+
 
     // Search recipes by recipe ID 
     public function getRecipeById($recipeId)

@@ -15,9 +15,10 @@ use App\Http\Controllers\Auth\DailyMacrosController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\MealPlanerController;
 use App\Http\Controllers\FatSecretController;
+use App\Http\Controllers\Auth\TestForRecipes;
 
 
-
+Route::post('/get-meal', [MealPlanerController::class, 'getMeal']);
 Route::post('/register', [RegisterController::class, 'Register']);
 Route::post('/login', [LoginController::class, 'Login']);
 Route::get('/foods/search', [FatSecretController::class, 'search']);
@@ -59,6 +60,7 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::post('/save-daily-macros', [DailyMacrosController::class, 'storeCal']);
     Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
     Route::post('/generate-meal-plan', [MealPlanerController::class, 'generateMealPlan']);
+    Route::post('/get-meal', [TestForRecipes::class, 'getMeal']);
 });
 
 

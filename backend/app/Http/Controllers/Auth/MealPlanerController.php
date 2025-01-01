@@ -14,7 +14,7 @@ class MealPlanerController extends Controller
 
     public function __construct(FatSecretService $fatSecretService)
     {
-        $this->fatSecretService = $fatSecretService; // Inject the FatSecretService
+        $this->fatSecretService = $fatSecretService;
     }
 
     public function generateMealPlan(Request $request)
@@ -35,8 +35,13 @@ class MealPlanerController extends Controller
 
         $mealCalories = $dailyCalories / $mealsPerDay;
 
+        $caloriesFrom = $mealCalories * 0.5;
+        $caloriesTo = $mealCalories * 1.5; 
+
+        \Log::info("Calories per meal: " . $mealCalories);
+
         try {
-            $mealPlan = $this->generateMealPlanForDay($mealCalories, $mealsPerDay);
+            $mealPlan = $this->getMealByCalories($caloriesFrom, $caloriesTo);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating meal plan: ' . $e->getMessage()], 500);
         }
@@ -52,68 +57,47 @@ class MealPlanerController extends Controller
         ]);
     }
 
-    private function generateMealPlanForDay($mealCalories, $mealsPerDay)
+    private function getMealByCalories($caloriesFrom, $caloriesTo)
     {
-        $mealPlan = [];
+        try {
+            // Fetch recipes using FatSecretService
+            $recipes = $this->fatSecretService->searchRecipes('meal', [
+                'calories.from' => max(0, $caloriesFrom),
+                'calories.to' => $caloriesTo,
+            ]);
     
-        foreach (range(1, $mealsPerDay) as $mealIndex) {
-            $mealName = "Meal $mealIndex";
-            $mealItems = [];
-            $currentCalories = 0;
-    
-            try {
-                // Fetch recipes with a broader calorie range to increase chances of getting valid recipes
-                $recipes = $this->fatSecretService->searchRecipes('meal', [
-                    'max_results' => 5,  // Increase the number of results
-                    'calories.from' => $mealCalories * 0.8,  // Broaden the search range
-                    'calories.to' => $mealCalories * 1.2,    // Allow for a broader range
-                ]);
-    
-                \Log::info('FatSecret API response for Meal ' . $mealIndex, ['response' => $recipes]);
-    
-                if (isset($recipes['response']['recipes']['recipe']) && is_array($recipes['response']['recipes']['recipe']) && count($recipes['response']['recipes']['recipe']) > 0) {
-                    foreach ($recipes['response']['recipes']['recipe'] as $recipe) {
-                        \Log::info('Processing recipe for Meal ' . $mealIndex, ['recipe' => $recipe]);
-    
-                        // Check if the current recipe can fit within the calorie limits for the meal
-                        if ($currentCalories + $recipe['recipe_nutrition']['calories'] <= $mealCalories) {
-                            $mealItems[] = $recipe;
-                            $currentCalories += $recipe['recipe_nutrition']['calories'];
-                        }
-    
-                        if ($currentCalories >= $mealCalories) {
-                            break;
-                        }
-                    }
-                } else {
-                    // Handle case where no recipes are found
-                    \Log::warning("No recipes found for meal $mealIndex or response format is incorrect.");
-                }
-    
-                // If no recipe met the calorie requirement, add a fallback food
-                if ($currentCalories < $mealCalories) {
-                    \Log::info("Fallback triggered for $mealName due to insufficient calories.");
-                    // Add variety to the fallback foods (to avoid repetitive fallback)
-                    $fallbackFoods = ['protein shake', 'granola', 'yogurt', 'eggs'];
-                    $randomFallback = $fallbackFoods[array_rand($fallbackFoods)];
-                    $fallbackFood = $this->fatSecretService->searchFoods($randomFallback); 
-                    if (isset($fallbackFood['foods'][0])) {
-                        \Log::info("Adding fallback food to $mealName", ['food' => $fallbackFood['foods'][0]]);
-                        $mealItems[] = $fallbackFood['foods'][0]; 
-                        $currentCalories += $fallbackFood['foods'][0]['calories'];
-                    }
-                }
-            } catch (\Exception $e) {
-                throw new \Exception("Error fetching recipes for meal $mealIndex: " . $e->getMessage());
+            // Normalize the response to handle single or multiple recipes
+            $recipeList = $recipes['response']['recipes']['recipe'] ?? [];
+            if (!is_array($recipeList)) {
+                $recipeList = [$recipeList]; // Wrap single object in an array
             }
     
-            \Log::info("Final meal for $mealName", ['mealItems' => $mealItems]);
+            // Filter recipes within the calorie range
+            $filteredRecipes = array_filter($recipeList, function ($recipe) use ($caloriesFrom, $caloriesTo) {
+                $calories = $recipe['recipe_nutrition']['calories'] ?? null;
+                return $calories !== null && $calories >= $caloriesFrom && $calories <= $caloriesTo;
+            });
     
-            $mealPlan[$mealName] = $mealItems;
+            if (empty($filteredRecipes)) {
+                \Log::warning("No recipes match the calorie criteria.", [
+                    'calories_from' => $caloriesFrom,
+                    'calories_to' => $caloriesTo,
+                    'response' => $recipes,
+                ]);
+                return [];
+            }
+    
+            return $filteredRecipes;
+        } catch (\Exception $e) {
+            \Log::error("Error fetching recipes: " . $e->getMessage(), [
+                'calories_from' => $caloriesFrom,
+                'calories_to' => $caloriesTo,
+            ]);
+            return [];
         }
-    
-        return $mealPlan;
     }
+    
+
 
     public function getMealPlan(Request $request)
     {

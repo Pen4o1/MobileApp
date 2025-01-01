@@ -27,6 +27,7 @@ import SetGoalWindow from './components/SetGoalWindow'
 import TestCal from './pages/Add-food/Test-add-foods'
 import SetMealPlan from './components/MealPlan'
 import TestBAckend from './pages/FoodSearch'
+import TEstRecipes from './pages/test_for_recipes'
 
 import '@ionic/react/css/core.css'
 import '@ionic/react/css/normalize.css'
@@ -122,6 +123,9 @@ const App: React.FC = () => {
                 </Route>
                 <Route exact path="/test2">
                   <TestBAckend />
+                </Route>
+                <Route exact path="/test3">
+                  <TEstRecipes />
                 </Route>
               </IonRouterOutlet>
 
