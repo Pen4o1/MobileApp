@@ -1,66 +1,112 @@
 import React, { useState } from 'react'
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonInput,
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonLoading,
+  IonToast,
+} from '@ionic/react'
 
-const MealPlan = () => {
-  const [meals, setMeals] = useState<any[]>([])
+const RecipeSearch: React.FC = () => {
+  const [caloriesFrom, setCaloriesFrom] = useState<string>('')
+  const [caloriesTo, setCaloriesTo] = useState<string>('')
+  const [recipes, setRecipes] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string | null>(null)
 
-  const handleGenerateMealPlan = async () => {
+  const fetchRecipes = async () => {
     setLoading(true)
-    setError('')
+    setError(null)
 
     try {
-      const response = await fetch('http:///127.0.0.1:8000/api/get-meal', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}), // Send an empty object as the request body
+      const params = new URLSearchParams({
+        calories_from: caloriesFrom,
+        calories_to: caloriesTo,
       })
 
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/recipes/search?${params}`,
+        {
+          method: 'GET',
+        }
+      )
+
       if (!response.ok) {
-        throw new Error('Failed to fetch meal plan')
+        throw new Error('Failed to fetch recipes')
       }
 
       const data = await response.json()
-
-      if (data && data.meals) {
-        setMeals(data.meals)
-      } else {
-        setError('No meals found for the specified calorie range')
-      }
+      setRecipes(data.recipes?.recipe || [])
     } catch (err) {
-      setError('Failed to fetch meal plan. Please try again.')
+      setError('Failed to fetch recipes. Please try again later.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div>
-      <button onClick={handleGenerateMealPlan} disabled={loading}>
-        {loading ? 'Loading...' : 'Generate Meal Plan'}
-      </button>
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Recipe Search</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <IonList>
+          <IonItem>
+            <IonLabel position="floating">Calories From</IonLabel>
+            <IonInput
+              type="number"
+              value={caloriesFrom}
+              onIonChange={(e) => setCaloriesFrom(e.detail.value!)}
+              placeholder="Min Calories"
+            />
+          </IonItem>
+          <IonItem>
+            <IonLabel position="floating">Calories To</IonLabel>
+            <IonInput
+              type="number"
+              value={caloriesTo}
+              onIonChange={(e) => setCaloriesTo(e.detail.value!)}
+              placeholder="Max Calories"
+            />
+          </IonItem>
+        </IonList>
+        <IonButton expand="block" onClick={fetchRecipes}>
+          Search Recipes
+        </IonButton>
 
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+        <IonLoading isOpen={loading} message="Loading recipes..." />
+        <IonToast
+          isOpen={!!error}
+          duration={3000}
+          onDidDismiss={() => setError(null)}
+        />
 
-      <div>
-        {meals.length > 0 ? (
-          <ul>
-            {meals.map((meal: any, index: number) => (
-              <li key={index}>
-                <h4>{meal.recipe_name}</h4>
-                <p>Calories: {meal.recipe_nutrition.calories}</p>
-              </li>
+        {recipes.length > 0 && (
+          <IonList>
+            {recipes.map((recipe: any) => (
+              <IonItem key={recipe.recipe_id}>
+                <IonLabel>
+                  <h2>{recipe.recipe_name}</h2>
+                  <p>{recipe.recipe_description}</p>
+                  <p>{recipe.recipe_ingredients?.ingredient}</p>
+                  <p>Calories: {recipe.recipe_nutrition?.calories}</p>
+                </IonLabel>
+              </IonItem>
             ))}
-          </ul>
-        ) : (
-          <p>No meals found</p>
+          </IonList>
         )}
-      </div>
-    </div>
+      </IonContent>
+    </IonPage>
   )
 }
 
-export default MealPlan
+export default RecipeSearch

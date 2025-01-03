@@ -16,8 +16,10 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\MealPlanerController;
 use App\Http\Controllers\FatSecretController;
 use App\Http\Controllers\Auth\TestForRecipes;
+use App\Http\Controllers\RecipeController;
 
 
+Route::get('/recipes/search', [RecipeController::class, 'search']);
 Route::post('/get-meal', [MealPlanerController::class, 'getMeal']);
 Route::post('/register', [RegisterController::class, 'Register']);
 Route::post('/login', [LoginController::class, 'Login']);
