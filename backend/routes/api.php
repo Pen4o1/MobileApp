@@ -61,7 +61,7 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::post('/save-goal', [GoalController::class, 'saveGoal']);
     Route::post('/save-daily-macros', [DailyMacrosController::class, 'storeCal']);
     Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
-    Route::post('/generate-meal-plan', [MealPlanerController::class, 'generateMealPlan']);
+    Route::post('/generate/meal/plan', [MealPlanerController::class, 'generateMealPlan']);
     Route::post('/get-meal', [TestForRecipes::class, 'getMeal']);
 });
 

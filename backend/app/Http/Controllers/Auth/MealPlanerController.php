@@ -19,10 +19,10 @@ class MealPlanerController extends Controller
 
     public function generateMealPlan(Request $request)
     {
-        $mealsPerDay = $request->input('meals_per_day');
+        $mealsPerDay = $request->input('meals_per_day', 3); 
 
-        if (!in_array($mealsPerDay, [1, 2, 3, 4, 5, 6])) {
-            return response()->json(['error' => 'Meals per day must be between 1 and 6'], 400);
+        if (!in_array($mealsPerDay, [ 3, 4, 5, 6])) {
+            return response()->json(['error' => 'Meals per day must be between 3 and 6'], 400);
         }
 
         $user = Auth::user();
@@ -31,70 +31,68 @@ class MealPlanerController extends Controller
             return response()->json(['error' => 'Calorie goal not set for the user'], 400);
         }
 
-        $dailyCalories = $user->goal()->value('caloric_target'); 
-
+        $dailyCalories = $user->goal()->value('caloric_target');
         $mealCalories = $dailyCalories / $mealsPerDay;
 
-        $caloriesFrom = $mealCalories * 0.5;
-        $caloriesTo = $mealCalories * 1.5; 
-
-        \Log::info("Calories per meal: " . $mealCalories);
+        $caloriesFrom = $mealCalories; 
+        $caloriesTo = $mealCalories * 1.3;  
 
         try {
-            $mealPlan = $this->getMealByCalories($caloriesFrom, $caloriesTo);
+            $mealPlan = $this->getMealPlanByCalories($mealsPerDay, $caloriesFrom, $caloriesTo);
+
+            $user->meal_plan()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['plan' => $mealPlan]
+            );
+
+            return response()->json([
+                'message' => 'Meal plan generated successfully',
+                'meal_plan' => $mealPlan,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating meal plan: ' . $e->getMessage()], 500);
         }
-
-        $user->meal_plan()->updateOrCreate(
-            ['user_id' => $user->id],
-            ['plan' => $mealPlan]
-        );
-
-        return response()->json([
-            'message' => 'Meal plan generated successfully',
-            'meal_plan' => $mealPlan,
-        ]);
     }
 
-    private function getMealByCalories($caloriesFrom, $caloriesTo)
+    private function getMealPlanByCalories($mealsPerDay, $caloriesFrom, $caloriesTo)
     {
-        try {
-            // Fetch recipes using FatSecretService
-            $recipes = $this->fatSecretService->searchRecipes('meal', [
-                'calories.from' => max(0, $caloriesFrom),
-                'calories.to' => $caloriesTo,
-            ]);
+        $mealPlan = [];
+        $caloriesFrom = intval(round($caloriesFrom));
+        $caloriesTo = intval(round($caloriesTo));
+        $filters = [
+            'calories.from' => $caloriesFrom,
+            'calories.to' => $caloriesTo,
+            'sort_by' => 'caloriesPerServingAscending',
+        ];
     
-            // Normalize the response to handle single or multiple recipes
-            $recipeList = $recipes['response']['recipes']['recipe'] ?? [];
-            if (!is_array($recipeList)) {
-                $recipeList = [$recipeList]; // Wrap single object in an array
-            }
-    
-            // Filter recipes within the calorie range
-            $filteredRecipes = array_filter($recipeList, function ($recipe) use ($caloriesFrom, $caloriesTo) {
-                $calories = $recipe['recipe_nutrition']['calories'] ?? null;
-                return $calories !== null && $calories >= $caloriesFrom && $calories <= $caloriesTo;
-            });
-    
-            if (empty($filteredRecipes)) {
-                \Log::warning("No recipes match the calorie criteria.", [
-                    'calories_from' => $caloriesFrom,
-                    'calories_to' => $caloriesTo,
-                    'response' => $recipes,
-                ]);
-                return [];
-            }
-    
-            return $filteredRecipes;
-        } catch (\Exception $e) {
-            \Log::error("Error fetching recipes: " . $e->getMessage(), [
+        for ($i = 0; $i < $mealsPerDay; $i++) {
+            \Log::info("Fetching recipes for meal " . ($i + 1), [
                 'calories_from' => $caloriesFrom,
                 'calories_to' => $caloriesTo,
             ]);
-            return [];
+    
+            try {
+                // Fetch recipes using the filters
+                $recipes = $this->fatSecretService->searchRecipes('meal', $filters);    
+    
+                foreach ($recipes as $recipe) {
+                    $mealPlan[] = $recipe;
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error fetching recipes for meal " . ($i + 1), [
+                    'message' => $e->getMessage(),
+                    'calories_from' => $caloriesFrom,
+                    'calories_to' => $caloriesTo,
+                ]);
+                continue; 
+            }
         }
+    
+        if (empty($mealPlan)) {
+            throw new \Exception('Unable to generate a meal plan. No suitable recipes found.');
+        }
+    
+        return $mealPlan;
     }
     
 
