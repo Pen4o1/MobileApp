@@ -34,7 +34,7 @@ class MealPlanerController extends Controller
         $dailyCalories = $user->goal()->value('caloric_target');
         $mealCalories = $dailyCalories / $mealsPerDay;
 
-        $caloriesFrom = $mealCalories; 
+        $caloriesFrom = $mealCalories * 0.8; 
         $caloriesTo = $mealCalories * 1.3;  
 
         try {
@@ -64,19 +64,25 @@ class MealPlanerController extends Controller
             'calories.to' => $caloriesTo,
             'sort_by' => 'caloriesPerServingAscending',
         ];
-    
+        
+        $mealTypes = $this->getMealTypesForMealsPerDay($mealsPerDay);
+
         for ($i = 0; $i < $mealsPerDay; $i++) {
             \Log::info("Fetching recipes for meal " . ($i + 1), [
                 'calories_from' => $caloriesFrom,
                 'calories_to' => $caloriesTo,
             ]);
-    
+
             try {
+                if($mealsPerDay == 3 || $mealsPerDay == 5) {
+                    $filters['meal_type'] = $mealTypes;
+                }
+
                 // Fetch recipes using the filters
-                $recipes = $this->fatSecretService->searchRecipes('meal', $filters);    
-    
+                $recipes = $this->fatSecretService->searchRecipes('meal', $filters);
+
                 foreach ($recipes as $recipe) {
-                    $mealPlan[] = $recipe;
+                        $mealPlan[] = $recipe;
                 }
             } catch (\Exception $e) {
                 \Log::error("Error fetching recipes for meal " . ($i + 1), [
@@ -87,15 +93,13 @@ class MealPlanerController extends Controller
                 continue; 
             }
         }
-    
+
         if (empty($mealPlan)) {
             throw new \Exception('Unable to generate a meal plan. No suitable recipes found.');
         }
-    
+
         return $mealPlan;
     }
-    
-
 
     public function getMealPlan(Request $request)
     {
@@ -107,5 +111,26 @@ class MealPlanerController extends Controller
         }
 
         return response()->json(['meal_plan' => $mealPlan->plan]);
+    }
+
+    private function getMealTypesForMealsPerDay($mealsPerDay)
+    {
+        // Define a mapping of mealsPerDay to specific meal types
+        $mealTypes = [];
+
+        switch ($mealsPerDay) {
+            case 3:
+                $mealTypes = ['Breakfast', 'Lunch', 'Main Dishes'];
+                break;
+            case 5:
+                $mealTypes = ['Breakfast', 'Lunch', 'Main Dishes', 'Snacks', 'Snacks'];
+                break;
+            // Add more cases if needed
+            default:
+                // For any other number of meals, you could implement more logic if necessary
+                break;
+        }
+
+        return $mealTypes;
     }
 }

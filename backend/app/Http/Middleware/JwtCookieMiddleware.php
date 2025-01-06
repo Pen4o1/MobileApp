@@ -18,7 +18,7 @@ class JwtCookieMiddleware
                 JWTAuth::setToken($token);
                 $user = JWTAuth::authenticate();
                 auth()->setUser($user);
-                \Log::info('Authenticated User:', ['user' => $user]); // Add this line for debugging
+                \Log::info('Authenticated User:', ['user' => $user]); 
 
             } catch (\Exception $e) {
                 \Log::error('Token Authentication Error:', ['error' => $e->getMessage()]);

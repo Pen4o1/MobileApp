@@ -149,7 +149,7 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         </IonToolbar>
       </IonFooter>
     </IonModal>
-  )
-}
+  );
+};
 
-export default SetMealPlan
+export default SetMealPlan;

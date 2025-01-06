@@ -55,37 +55,37 @@ class FatSecretService
     }
 
     public function searchRecipes($query, $filters = [])
-{
-    $token = $this->getAccessToken();
-
-    $params = array_merge([
-        'method' => 'recipes.search.v3',
-        'search_expression' => $query,
-        'format' => 'json',
-        'max_results' => 50,
-    ], $filters);
-
-    try {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->get($this->apiUrl, $params);
-
-        if ($response->successful()) {
-            \Log::info('Recipe API Response:', ['response' => $response->json()]);
-            return $response->json();
+    {
+        $token = $this->getAccessToken();
+    
+        $params = array_merge([
+            'method' => 'recipes.search.v3',
+            'search_expression' => $query,
+            'format' => 'json',
+            'max_results' => 50,
+        ], $filters);
+    
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+            ])->get($this->apiUrl, $params);
+    
+            if ($response->successful()) {
+                \Log::info('Recipe API Response:', ['response' => $response->json()]);
+                return $response->json();
+            }
+    
+            \Log::error('Recipe Search Failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during Recipe Search:', ['message' => $e->getMessage()]);
         }
-
-        \Log::error('Recipe Search Failed', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Exception during Recipe Search:', ['message' => $e->getMessage()]);
+    
+        throw new \Exception('Failed to search recipes.');
     }
-
-    throw new \Exception('Failed to search recipes.');
-}
-
+    
 
 
     // Search recipes by recipe ID 
