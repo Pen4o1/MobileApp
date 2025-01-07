@@ -64,6 +64,8 @@ class MealPlanerController extends Controller
             'calories.to' => $caloriesTo,
             'sort_by' => 'caloriesPerServingAscending',
         ];
+
+        $recipes = $this->fatSecretService->searchRecipes('', $filters);
     
         for ($i = 0; $i < $mealsPerDay; $i++) {
             \Log::info("Fetching recipes for meal " . ($i + 1), [
@@ -71,10 +73,7 @@ class MealPlanerController extends Controller
                 'calories_to' => $caloriesTo,
             ]);
     
-            try {
-                // Fetch recipes using the filters
-                $recipes = $this->fatSecretService->searchRecipes('meal', $filters);    
-    
+            try { 
                 foreach ($recipes as $recipe) {
                     $mealPlan[] = $recipe;
                 }
@@ -94,13 +93,12 @@ class MealPlanerController extends Controller
     
         return $mealPlan;
     }
-    
 
 
-    public function getMealPlan(Request $request)
+    public function getMealPlan()
     {
-        $user = $request->user();
-        $mealPlan = MealPlans::where('user_id', $user->id)->first();
+        $user = Auth::user();
+        $mealPlan = $user->meal_plan('user_id')->first();
 
         if (!$mealPlan) {
             return response()->json(['error' => 'No meal plan found'], 404);
