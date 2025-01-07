@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
   IonModal,
   IonHeader,
@@ -10,41 +10,48 @@ import {
   IonItem,
   IonLabel,
   IonFooter,
-  IonList,
   IonLoading,
   IonToast,
   IonAccordion,
   IonAccordionGroup,
-} from '@ionic/react'
+} from '@ionic/react';
+
+type Ingredient = { ingredient: string[] };
+type Nutrition = { calories: string };
 
 type Recipe = {
-  recipe_name: string
-  recipe_description: string
-  recipe_ingredients: { ingredient: string[] }
-  recipe_nutrition: { calories: string }
-}
+  recipe_name: string;
+  recipe_description: string;
+  recipe_ingredients: Ingredient;
+  recipe_nutrition: Nutrition;
+};
+
+type CombinedMeal = {
+  combined_recipes: Recipe[];
+  total_calories: number;
+};
+
+type Meal = Recipe | CombinedMeal;
 
 type MealPlanResponse = {
-  meal_plan: {
-    recipe: Recipe[] 
-  }[]
-}
+  meal_plan: Meal[];
+};
 
 const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  const [meals_per_day, setMeals_per_day] = useState(3)
-  const [mealPlan, setMealPlan] = useState<MealPlanResponse | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [mealsPerDay, setMealsPerDay] = useState(3);
+  const [mealPlan, setMealPlan] = useState<MealPlanResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const payload = { meals_per_day }
+      const payload = { meals_per_day: mealsPerDay };
       const response = await fetch(
         'http://127.0.0.1:8000/api/generate/meal/plan',
         {
@@ -55,22 +62,66 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
           },
           body: JSON.stringify(payload),
         }
-      )
+      );
 
       if (response.ok) {
-        const data = await response.json()
-        setMealPlan(data as MealPlanResponse) 
+        const data = await response.json();
+        setMealPlan(data as MealPlanResponse);
       } else {
-        const errorData = await response.json()
-        setError(errorData.message || 'Failed to generate meal plan')
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to generate meal plan');
       }
     } catch (error) {
-      setError('An error occurred while generating the meal plan.')
-      console.error('Error:', error)
+      setError('An error occurred while generating the meal plan.');
+      console.error('Error:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const renderMeal = (meal: Meal, index: number) => {
+    if ('combined_recipes' in meal) {
+      // Render combined recipes
+      return (
+        <IonAccordion key={index}>
+          <IonItem slot="header">
+            <IonLabel>Meal {index + 1}: Combined Meal</IonLabel>
+          </IonItem>
+          <div slot="content">
+            <p>Total Calories: {meal.total_calories} kcal</p>
+            {meal.combined_recipes.map((recipe, i) => (
+              <div key={i} style={{ marginBottom: '10px' }}>
+                <h3>Recipe {i + 1}: {recipe.recipe_name}</h3>
+                <p>{recipe.recipe_description}</p>
+                <p>Calories: {recipe.recipe_nutrition.calories} kcal</p>
+                <p>
+                  Ingredients: {recipe.recipe_ingredients.ingredient.join(', ')}
+                </p>
+              </div>
+            ))}
+          </div>
+        </IonAccordion>
+      );
+    } else {
+      // Render single recipe
+      return (
+        <IonAccordion key={index}>
+          <IonItem slot="header">
+            <IonLabel>
+              Meal {index + 1}: {meal.recipe_name}
+            </IonLabel>
+          </IonItem>
+          <div slot="content">
+            <p>{meal.recipe_description}</p>
+            <p>Calories: {meal.recipe_nutrition.calories} kcal</p>
+            <p>
+              Ingredients: {meal.recipe_ingredients.ingredient.join(', ')}
+            </p>
+          </div>
+        </IonAccordion>
+      );
+    }
+  };
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
@@ -82,13 +133,11 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
       <IonContent>
         <IonItem>
-          <IonLabel position="floating">
-            How many meals a day would you have
-          </IonLabel>
+          <IonLabel position="floating">How many meals a day?</IonLabel>
           <IonInput
             type="number"
-            value={meals_per_day}
-            onIonChange={(e) => setMeals_per_day(Number(e.detail.value!))}
+            value={mealsPerDay}
+            onIonChange={(e) => setMealsPerDay(Number(e.detail.value!))}
             disabled={loading}
             min={1}
             max={6}
@@ -112,31 +161,9 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
         {mealPlan && mealPlan.meal_plan.length > 0 && (
           <div style={{ marginTop: '20px' }}>
-            {mealPlan.meal_plan.map((mealItem, index) => (
-              <div key={index}>
-                {mealItem.recipe.length > 0 ? (
-                  <IonAccordionGroup>
-                    {mealItem.recipe.map((recipe, recipeIndex) => (
-                      <IonAccordion key={recipeIndex}>
-                        <IonItem slot="header">
-                          <IonLabel>{recipe.recipe_name} Meal number: {index + 1}</IonLabel>
-                        </IonItem>
-                        <div slot="content">
-                          <p>{recipe.recipe_description}</p>
-                          <p>Calories: {recipe.recipe_nutrition?.calories} kcal</p>
-                          <p>
-                            Ingredients:{' '}
-                            {recipe.recipe_ingredients.ingredient.join(', ')}
-                          </p>
-                        </div>
-                      </IonAccordion>
-                    ))}
-                  </IonAccordionGroup>
-                ) : (
-                  <p>No recipes available for this meal.</p>
-                )}
-              </div>
-            ))}
+            <IonAccordionGroup>
+              {mealPlan.meal_plan.map((meal, index) => renderMeal(meal, index))}
+            </IonAccordionGroup>
           </div>
         )}
       </IonContent>
@@ -149,7 +176,7 @@ const SetMealPlan: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         </IonToolbar>
       </IonFooter>
     </IonModal>
-  )
-}
+  );
+};
 
-export default SetMealPlan
+export default SetMealPlan;

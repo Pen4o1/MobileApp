@@ -28,6 +28,7 @@ import TestCal from './pages/Add-food/Test-add-foods'
 import SetMealPlan from './components/MealPlan'
 import TestBAckend from './pages/FoodSearch'
 import TEstRecipes from './pages/test_for_recipes'
+import GetMealPlan from './components/GetMealPlan'
 
 import '@ionic/react/css/core.css'
 import '@ionic/react/css/normalize.css'
@@ -56,6 +57,7 @@ const App: React.FC = () => {
   const [isCompleated, setIsCompleated] = useState(false)
   const [showGoalWindow, setShowGoalWindow] = useState(false)
   const [showMealWindow, setShowMealWindow] = useState(false)
+  const [showGetMealPLan, setShowGetMealPlan] = useState(false)
 
   useEffect(() => {
     const validateToken = async () => {
@@ -157,6 +159,12 @@ const App: React.FC = () => {
                   <IonTabButton
                     tab="Set Meal Plan"
                     onClick={() => setShowMealWindow(true)}
+                  >
+                    <IonButton>Set Meal Plan</IonButton>
+                  </IonTabButton>
+                  <IonTabButton
+                    tab="Get Meal Plan"
+                    onClick={() => setShowGetMealPlan(true)}
                   >
                     <IonButton>Set Meal Plan</IonButton>
                   </IonTabButton>

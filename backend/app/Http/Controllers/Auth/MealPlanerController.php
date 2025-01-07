@@ -57,6 +57,7 @@ class MealPlanerController extends Controller
     private function getMealPlanByCalories($mealsPerDay, $caloriesFrom, $caloriesTo)
     {
         $mealPlan = [];
+        $usedRecipeIds = []; 
         $caloriesFrom = intval(round($caloriesFrom));
         $caloriesTo = intval(round($caloriesTo));
         $filters = [
@@ -65,35 +66,65 @@ class MealPlanerController extends Controller
             'sort_by' => 'caloriesPerServingAscending',
         ];
 
-        $recipes = $this->fatSecretService->searchRecipes('', $filters);
-    
+        $recipesResponse = $this->fatSecretService->searchRecipes('', $filters);
+
+        \Log::info("Recipes fetched", ['recipesResponse' => $recipesResponse]);
+
+        if (!isset($recipesResponse['recipes']['recipe']) || !is_array($recipesResponse['recipes']['recipe'])) {
+            throw new \Exception('Invalid recipes data structure or no recipes found.');
+        }
+
+        //beacuse the recipe array is in the recipes 
+        $recipes = $recipesResponse['recipes']['recipe']; 
+
         for ($i = 0; $i < $mealsPerDay; $i++) {
-            \Log::info("Fetching recipes for meal " . ($i + 1), [
+            \Log::info("Selecting recipe for meal " . ($i + 1), [
                 'calories_from' => $caloriesFrom,
                 'calories_to' => $caloriesTo,
             ]);
-    
-            try { 
+
+            $recipeAdded = false;
+
+            try {
                 foreach ($recipes as $recipe) {
-                    $mealPlan[] = $recipe;
+                    if (!isset($recipe['recipe_id'])) {
+                        \Log::warning("Recipe missing 'recipe_id'", ['recipe' => $recipe]);
+                        continue; 
+                    }
+
+                    if (!in_array($recipe['recipe_id'], $usedRecipeIds)) {
+                        $mealPlan[] = $recipe;
+                        $usedRecipeIds[] = $recipe['recipe_id'];
+                        $recipeAdded = true;
+                        break; 
+                    }
+                }
+
+                
+                if (!$recipeAdded && !empty($mealPlan)) {
+                    $mealPlan[] = $mealPlan[array_rand($mealPlan)]; 
+                    $recipeAdded = true;
                 }
             } catch (\Exception $e) {
-                \Log::error("Error fetching recipes for meal " . ($i + 1), [
+                \Log::error("Error adding recipe for meal " . ($i + 1), [
                     'message' => $e->getMessage(),
                     'calories_from' => $caloriesFrom,
                     'calories_to' => $caloriesTo,
                 ]);
                 continue; 
             }
+
+            if (!$recipeAdded) {
+                \Log::warning("No recipe found or reused for meal " . ($i + 1));
+            }
         }
-    
+
         if (empty($mealPlan)) {
             throw new \Exception('Unable to generate a meal plan. No suitable recipes found.');
         }
-    
+
         return $mealPlan;
     }
-
 
     public function getMealPlan()
     {
