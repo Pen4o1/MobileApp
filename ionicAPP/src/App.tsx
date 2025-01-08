@@ -10,9 +10,12 @@ import {
   IonIcon,
   IonLabel,
   IonTabs,
+  IonContent,
+  IonToggle,
 } from '@ionic/react'
 import { home, add, person } from 'ionicons/icons'
 import { IonReactRouter } from '@ionic/react-router'
+import type { ToggleCustomEvent } from '@ionic/react';
 import Home from './pages/Home-page/Home-page'
 import Login from './pages/Login/Login'
 import Register from './pages/Register/Register'
@@ -53,11 +56,11 @@ export const UserContext = createContext<{
 setupIonicReact()
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isCompleated, setIsCompleated] = useState(false)
-  const [showGoalWindow, setShowGoalWindow] = useState(false)
-  const [showMealWindow, setShowMealWindow] = useState(false)
-  const [showGetMealPLan, setShowGetMealPlan] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCompleated, setIsCompleated] = useState(false);
+  const [showGoalWindow, setShowGoalWindow] = useState(false);
+  const [showMealWindow, setShowMealWindow] = useState(false);
+  const [showGetMealPLan, setShowGetMealPlan] = useState(false);
 
   useEffect(() => {
     const validateToken = async () => {
@@ -68,23 +71,23 @@ const App: React.FC = () => {
             method: 'POST',
             credentials: 'include',
           }
-        )
+        );
         if (response.ok) {
-          const data = await response.json()
-          setIsLoggedIn(data.valid)
-          console.log(data.user)
-          setIsCompleated(data.compleated)
+          const data = await response.json();
+          setIsLoggedIn(data.valid);
+          console.log(data.user);
+          setIsCompleated(data.compleated);
         } else {
-          setIsLoggedIn(false)
+          setIsLoggedIn(false);
         }
       } catch (error) {
-        console.error('Authentication check failed', error)
-        setIsLoggedIn(false)
+        console.error('Authentication check failed', error);
+        setIsLoggedIn(false);
       }
-    }
+    };
 
-    validateToken()
-  }, [])
+    validateToken();
+  }, []); // Runs only once on mount
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID}>
@@ -196,7 +199,8 @@ const App: React.FC = () => {
         </IonApp>
       </UserContext.Provider>
     </GoogleOAuthProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;
+

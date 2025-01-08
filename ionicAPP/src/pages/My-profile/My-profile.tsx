@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import {
   IonPage,
   IonHeader,
@@ -11,11 +11,52 @@ import {
   IonButton,
   IonList,
   IonIcon,
+  IonToggle,
 } from '@ionic/react'
+import type { ToggleCustomEvent } from '@ionic/react';
 import { pencil, settings, logOut } from 'ionicons/icons'
+
 import '../../components/styles/profile-style.css'
+import '../../theme/variables.css'
 
 const MyProfile: React.FC = () => {
+  const [themeToggle, setThemeToggle] = useState(false);
+  
+    // to listen for the toggle
+    const toggleChange = (event: ToggleCustomEvent) => {
+      toggleDarkTheme(event.detail.checked);
+    };
+  
+    // to add or remove the dark class
+    const toggleDarkTheme = (shouldAdd: boolean) => {
+      document.body.classList.toggle('dark', shouldAdd);
+    };
+  
+    // to check or uncheck the toggle and update the theme based on isDark
+    const initializeDarkTheme = (isDark: boolean) => {
+      setThemeToggle(isDark);
+      toggleDarkTheme(isDark);
+    };
+  
+    useEffect(() => {
+  
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  
+      // Initialize the dark theme based on the initial
+      // value of the prefers-color-scheme media query
+      initializeDarkTheme(prefersDark.matches);
+  
+      const setDarkThemeFromMediaQuery = (mediaQuery: MediaQueryListEvent) => {
+        initializeDarkTheme(mediaQuery.matches);
+      };
+  
+      // Listen for changes to the prefers-color-scheme media query
+      prefersDark.addEventListener('change', setDarkThemeFromMediaQuery);
+
+      return () => {
+        prefersDark.removeEventListener('change', setDarkThemeFromMediaQuery);
+      };
+    }, []);
   return (
     <IonPage>
       <IonContent className="ion-padding profile-content">
@@ -33,6 +74,7 @@ const MyProfile: React.FC = () => {
           </div>
 
           <div className="profile-buttons">
+            <IonToggle checked={themeToggle} onIonChange={toggleChange} justify="space-between"> Dark Mode </IonToggle>
             <IonButton
               expand="block"
               color="primary"
