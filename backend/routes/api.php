@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\MealPlanerController;
 use App\Http\Controllers\FatSecretController;
 use App\Http\Controllers\Auth\TestForRecipes;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\Auth\ShoppingListController;
 
 
 Route::get('/recipes/search', [RecipeController::class, 'search']);
@@ -63,6 +64,7 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
     Route::post('/generate/meal/plan', [MealPlanerController::class, 'generateMealPlan']);
     Route::get('/get/meal/plan', [MealPlanerController::class, 'getMealPlan']); 
+    Route::get('/get/shopping/list', [ShoppingListController::class, 'getShoppingPlan']);
     Route::post('/get-meal', [TestForRecipes::class, 'getMeal']);
 });
 

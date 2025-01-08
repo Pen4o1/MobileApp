@@ -111,4 +111,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(MealPlans::class); 
     }
+
+    public function shopping_list(): HasOne
+    {
+        return $this->hasOne(ShoppingLists::class);
+    }
 }
