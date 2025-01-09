@@ -13,6 +13,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\UserGoal; 
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\MealPlans;
+use App\Models\DailyCal;
+
 
 
 class User extends Authenticatable implements JWTSubject
@@ -115,5 +117,10 @@ class User extends Authenticatable implements JWTSubject
     public function shopping_list(): HasOne
     {
         return $this->hasOne(ShoppingLists::class);
+    }
+
+    public function daily_macros(): HasOne
+    {
+        return $this->hasOne(DailyCal::class);
     }
 }

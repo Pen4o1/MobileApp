@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DailyCal;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -19,8 +18,8 @@ class DailyMacrosController extends Controller
         $user = Auth::user();
         $date = Carbon::today();
     
-        $dailyMacros = DailyCal::firstOrCreate(
-            ['user_id' => $user->id, 'date' => $date],
+        $dailyMacros = $user->daily_macros()->firstOrCreate(
+            ['date' => $date],
             ['calories_consumed' => 0] 
         );
     
@@ -32,17 +31,17 @@ class DailyMacrosController extends Controller
         ]);
     }
     
-        public function getDailyCal(Request $request) {
-            $user = Auth::user();
+    public function getDailyCal(Request $request) {
+        $user = Auth::user();
 
-            $date = Carbon::today();
+        $date = Carbon::today();
 
-            $dailyCalories = DailyCal::where('user_id', $user->id)
-            ->where('date', $date)
-            ->first();
-            
-            $goal = $user->goal()->value('caloric_target');
+        $dailyCalories = $user->daily_macros()
+        ->where('date', $date)
+        ->first();
+        
+        $goal = $user->goal()->value('caloric_target');
 
-            return response()->json(['daily_calories' => $dailyCalories ? $dailyCalories->calories_consumed : 0, 'goal' => $goal]);
-        }
+        return response()->json(['daily_calories' => $dailyCalories ? $dailyCalories->calories_consumed : 0, 'goal' => $goal]);
+    }
 }
