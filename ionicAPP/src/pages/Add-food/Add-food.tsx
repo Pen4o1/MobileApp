@@ -12,131 +12,119 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonModal,
   IonLabel,
+  IonCheckbox,
+  IonModal,
 } from '@ionic/react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
-import '../../components/styles/add-food-style.css'
 
 const AddFood: React.FC = () => {
-  const [foodSentence, setFoodSentence] = useState('') // For nutrition data
-  const [recipeName, setRecipeName] = useState('') // For recipe name
-  const [nutritionData, setNutritionData] = useState<any>(null)
-  const [recipeData, setRecipeData] = useState<any>(null)
-  const [errorMessageNutrition, setErrorMessageNutrition] = useState<
-    string | null
-  >(null)
-  const [errorMessageRecipe, setErrorMessageRecipe] = useState<string | null>(
-    null
-  )
+  const [inputValue, setInputValue] = useState('')
+  const [fetchedItems, setFetchedItems] = useState<any[]>([])
+  const [selectedItems, setSelectedItems] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showModal, setShowModal] = useState(false)
 
-  // Separate states for modals
-  const [showNutritionModal, setShowNutritionModal] = useState(false)
-  const [showRecipeModal, setShowRecipeModal] = useState(false)
-
-  // Fetch nutrition data
-  const handleTextInput = async () => {
-    if (!foodSentence.trim()) {
-      setErrorMessageNutrition('Please enter a valid food description.')
+  // Fetch Foods or Recipes using Query Parameters
+  const fetchItems = async () => {
+    if (!inputValue.trim()) {
+      setErrorMessage('Please enter a valid input.')
       return
     }
 
     setLoading(true)
-    setErrorMessageNutrition(null)
+    setErrorMessage(null)
 
     try {
-      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY
-      if (!apiKeyNinja) {
-        throw new Error(
-          'API Key is missing. Please configure it in the environment file.'
-        )
-      }
-      console.log(`Fetching nutrition data for: ${foodSentence}`)
-
       const response = await fetch(
-        'https://api.calorieninjas.com/v1/nutrition?query=' +
-          encodeURIComponent(foodSentence),
+        `http://127.0.0.1:8000/api/foods/search?query=${encodeURIComponent(
+          inputValue
+        )}`,
         {
           method: 'GET',
-          headers: {
-            'X-Api-Key': apiKeyNinja,
-          },
         }
       )
 
       if (!response.ok) {
-        throw new Error('Failed to fetch nutrition data.')
+        throw new Error('Failed to fetch items.')
       }
 
       const data = await response.json()
-      setNutritionData(data.items)
-      setShowNutritionModal(true)
-      setShowRecipeModal(false)
+      const foods = data.foods_search?.results?.food || []
+      if (foods.length === 0) {
+        setErrorMessage('No items found for your query.')
+      } else {
+        // Map the API data into a simpler format
+        const formattedItems = foods.map((food: any) => ({
+          id: food.food_id,
+          name: food.food_name,
+          calories:
+            food.servings?.serving[0]?.calories || 'Unknown', // Default if calories are missing
+          servingDescription:
+            food.servings?.serving[0]?.serving_description || 'Unknown', // Serving description
+        }))
+        setFetchedItems(formattedItems)
+        setShowModal(true)
+      }
     } catch (error) {
-      setErrorMessageNutrition(
-        'Error fetching nutrition information. Please try again.'
-      )
-      console.error(error)
+      console.error('Error fetching items:', error)
+      setErrorMessage('Error fetching items. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  // Fetch recipe data
-  const handleRecepies = async () => {
-    if (!recipeName.trim()) {
-      setErrorMessageRecipe('Please enter a valid recipe name.')
+  // Toggle Selected Items
+  const toggleSelection = (item: any) => {
+    const isSelected = selectedItems.some((selected) => selected.id === item.id)
+    if (isSelected) {
+      setSelectedItems((prev) =>
+        prev.filter((selected) => selected.id !== item.id)
+      )
+    } else {
+      setSelectedItems((prev) => [...prev, item])
+    }
+  }
+
+  // Add Selected Items to Daily Calories
+  const addItemsToDailyCalories = async () => {
+    if (selectedItems.length === 0) {
+      setErrorMessage('No items selected.')
       return
     }
 
-    setLoading(true)
-    setErrorMessageRecipe(null)
-
     try {
-      const apiKeyNinja = import.meta.env.VITE_CALORIE_NINJA_API_KEY
-      if (!apiKeyNinja) {
-        throw new Error(
-          'API Key is missing. Please configure it in the environment file.'
-        )
-      }
-      console.log(`Fetching recipe data for: ${recipeName}`)
+      const payload = selectedItems.map((item) => ({
+        consumed_cal: parseInt(item.calories, 10), 
+      }))
 
       const response = await fetch(
-        'https://api.calorieninjas.com/v1/recipe?query=' +
-          encodeURIComponent(recipeName),
+        'http://127.0.0.1:8000/api/save-daily-macros',
         {
-          method: 'GET',
+          method: 'POST',
+          credentials: 'include',
           headers: {
-            'X-Api-Key': apiKeyNinja,
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify(payload),
         }
       )
 
       if (!response.ok) {
-        throw new Error('Failed to fetch recipe data.')
+        throw new Error('Failed to save items.')
       }
 
       const data = await response.json()
-      console.log('Recipe data:', data) // Check the response structure
-
-      if (data.items && data.items.length > 0) {
-        setRecipeData(data.items) // Update recipe data state
-        setShowRecipeModal(true) // Show recipe modal
-        setShowNutritionModal(false) // Hide nutrition modal
-      } else {
-        setErrorMessageRecipe('No recipe data found for your query.')
-      }
+      console.log('Successfully added items:', data)
+      setSelectedItems([])
+      setShowModal(false)
     } catch (error) {
-      setErrorMessageRecipe(
-        'Error fetching recipe information. Please try again.'
-      )
-      console.error(error)
-    } finally {
-      setLoading(false)
+      console.error('Error adding items:', error)
+      setErrorMessage('Error saving items. Please try again.')
     }
   }
 
@@ -152,160 +140,92 @@ const AddFood: React.FC = () => {
                 loop={true}
                 pagination={{ clickable: true }}
               >
-                <SwiperSlide>
-                  <IonButton expand="block" color="primary">
-                    Scan Barcode
-                  </IonButton>
-                </SwiperSlide>
-
+                {/* Food/Recipe Input Slide */}
                 <SwiperSlide>
                   <IonItem>
                     <IonInput
-                      placeholder="Enter what you ate"
-                      value={foodSentence}
-                      onIonChange={(e) => setFoodSentence(e.detail.value!)}
+                      placeholder="Enter a food or recipe"
+                      value={inputValue}
+                      onIonChange={(e) => setInputValue(e.detail.value!)}
                     />
                   </IonItem>
                   <IonButton
                     expand="block"
                     color="primary"
-                    onClick={handleTextInput}
+                    onClick={fetchItems}
                     disabled={loading}
                   >
-                    {loading ? 'Fetching...' : 'Get Nutrition'}
+                    {loading ? 'Fetching...' : 'Find Items'}
                   </IonButton>
-                  {errorMessageNutrition && (
-                    <IonText color="danger">
-                      <p>{errorMessageNutrition}</p>
-                    </IonText>
-                  )}
                 </SwiperSlide>
 
+                {/* Barcode Entry Slide */}
                 <SwiperSlide>
                   <IonButton expand="block" color="primary">
-                    Upload Image of the food label
+                    Scan Barcode (Coming Soon)
                   </IonButton>
-                </SwiperSlide>
-
-                {/* Recipe Slide */}
-                <SwiperSlide>
-                  <IonItem>
-                    <IonInput
-                      placeholder="Enter recipe name"
-                      value={recipeName}
-                      onIonChange={(e) => setRecipeName(e.detail.value!)}
-                    />
-                  </IonItem>
-                  <IonButton
-                    expand="block"
-                    color="primary"
-                    onClick={handleRecepies}
-                    disabled={loading}
-                  >
-                    {loading ? 'Fetching Recipes...' : 'Get Recipe Info'}
-                  </IonButton>
-                  {errorMessageRecipe && (
-                    <IonText color="danger">
-                      <p>{errorMessageRecipe}</p>
-                    </IonText>
-                  )}
                 </SwiperSlide>
               </Swiper>
             </IonCol>
           </IonRow>
         </IonGrid>
 
-        {/* Nutrition Information Modal */}
-        <IonModal
-          isOpen={showNutritionModal}
-          onDidDismiss={() => setShowNutritionModal(false)}
-        >
+        {/* Error Message */}
+        {errorMessage && (
+          <IonText color="danger">
+            <p>{errorMessage}</p>
+          </IonText>
+        )}
+
+        {/* Items Modal */}
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Nutrition Information</IonTitle>
+              <IonTitle>Select Items</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {nutritionData && nutritionData.length > 0 ? (
+            {fetchedItems.length > 0 ? (
               <IonGrid>
-                <IonRow>
-                  <IonCol size="12">
-                    {nutritionData.map((item: any, index: number) => (
-                      <IonItem key={index}>
+                {fetchedItems.map((item, index) => (
+                  <IonRow key={index}>
+                    <IonCol>
+                      <IonItem>
                         <IonLabel>
                           <h2>{item.name}</h2>
                           <p>
-                            <strong>Calories:</strong> {item.calories} kcal
+                            <strong>Calories:</strong> {item.calories}
                           </p>
                           <p>
-                            <strong>Protein:</strong> {item.protein_g}g
-                          </p>
-                          <p>
-                            <strong>Fat:</strong> {item.fat_total_g}g
-                          </p>
-                          <p>
-                            <strong>Carbohydrates:</strong>{' '}
-                            {item.carbohydrates_total_g}g
+                            <strong>Serving:</strong> {item.servingDescription}
                           </p>
                         </IonLabel>
+                        <IonCheckbox
+                          slot="start"
+                          checked={selectedItems.some(
+                            (selected) => selected.id === item.id
+                          )}
+                          onIonChange={() => toggleSelection(item)}
+                        />
                       </IonItem>
-                    ))}
-                    <IonButton
-                      expand="block"
-                      color="primary"
-                      onClick={() => setShowNutritionModal(false)}
-                    >
-                      Close
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
+                    </IonCol>
+                  </IonRow>
+                ))}
               </IonGrid>
             ) : (
               <IonText color="danger">
-                <p>No nutrition data available. Please try again.</p>
+                <p>No items found. Please try another input.</p>
               </IonText>
             )}
-          </IonContent>
-        </IonModal>
 
-        {/* Recipe Information Modal */}
-        <IonModal
-          isOpen={showRecipeModal}
-          onDidDismiss={() => setShowRecipeModal(false)}
-        >
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Recipe Information</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {recipeData && recipeData.length > 0 ? (
-              <IonGrid>
-                <IonRow>
-                  <IonCol size="12">
-                    {recipeData.map((item: any, index: number) => (
-                      <IonItem key={index}>
-                        <IonLabel>
-                          <h3>{item.title}</h3>
-                          <p>{item.instructions}</p>
-                        </IonLabel>
-                      </IonItem>
-                    ))}
-                    <IonButton
-                      expand="block"
-                      color="primary"
-                      onClick={() => setShowRecipeModal(false)}
-                    >
-                      Close
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            ) : (
-              <IonText color="danger">
-                <p>No recipe data available. Please try again.</p>
-              </IonText>
-            )}
+            <IonButton
+              expand="block"
+              color="success"
+              onClick={addItemsToDailyCalories}
+              disabled={selectedItems.length === 0}
+            >
+              Add Selected to Daily Calories
+            </IonButton>
           </IonContent>
         </IonModal>
       </IonContent>

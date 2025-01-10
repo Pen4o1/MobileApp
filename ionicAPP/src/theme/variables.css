@@ -8,6 +8,11 @@ body.dark {
   --ion-color-primary-contrast-rgb: 255, 255, 255;
   --ion-color-primary-shade: #3a7be0;
   --ion-color-primary-tint: #5598ff;
+  /*
+  i need to probably add these to make the text black
+  --ion-text-color: #121212;
+  --ion-text-color-rgb: 255, 255, 255;
+  */
 
   --ion-color-secondary: #50c8ff;
   --ion-color-secondary-rgb: 80, 200, 255;
@@ -118,7 +123,7 @@ body.dark {
   --ion-background-color: #121212;
   --ion-background-color-rgb: 18, 18, 18;
 
-  --ion-text-color: #ffffff;
+  --ion-text-color: #121212;
   --ion-text-color-rgb: 255, 255, 255;
 
   --ion-border-color: #222222;

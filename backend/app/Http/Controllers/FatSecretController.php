@@ -28,8 +28,8 @@ class FatSecretController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
-    
+    }   
+
     /*
     public function barcode(Request $request)
     {

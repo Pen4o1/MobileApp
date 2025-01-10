@@ -25,7 +25,7 @@ class FatSecretService
             'grant_type' => 'client_credentials',
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'scope' => 'basic',
+            'scope' => 'basic premier',
         ]);
 
         if ($response->successful()) {
@@ -42,7 +42,7 @@ class FatSecretService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
         ])->get($this->apiUrl, [
-            'method' => 'foods.search',
+            'method' => 'foods.search.v3',
             'format' => 'json',
             'search_expression' => $query,
         ]);
@@ -55,38 +55,74 @@ class FatSecretService
     }
 
     public function searchRecipes($query, $filters = [])
-{
-    $token = $this->getAccessToken();
+    {
+        $token = $this->getAccessToken();
 
-    $params = array_merge([
-        'method' => 'recipes.search.v3',
-        'search_expression' => $query,
-        'format' => 'json',
-        'max_results' => 50,
-    ], $filters);
+        $params = array_merge([
+            'method' => 'recipes.search.v3',
+            'search_expression' => $query,
+            'format' => 'json',
+            'max_results' => 50,
+        ], $filters);
 
-    try {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->get($this->apiUrl, $params);
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+            ])->get($this->apiUrl, $params);
 
-        if ($response->successful()) {
-            \Log::info('Recipe API Response:', ['response' => $response->json()]);
-            return $response->json();
+            if ($response->successful()) {
+                \Log::info('Recipe API Response:', ['response' => $response->json()]);
+                return $response->json();
+            }
+
+            \Log::error('Recipe Search Failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Exception during Recipe Search:', ['message' => $e->getMessage()]);
         }
 
-        \Log::error('Recipe Search Failed', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Exception during Recipe Search:', ['message' => $e->getMessage()]);
+        throw new \Exception('Failed to search recipes.');
     }
 
-    throw new \Exception('Failed to search recipes.');
-}
+    public function naturalLanguage($query)
+    {
+        $endpoint = 'natural-language-processing/v1';
+        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
 
+        $params = array_merge([
+            'user_input' => $query,
+            'language' => 'en',
+            'include_food_data' => true,
+            'max_results' => 50,
+        ]);
 
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->getAccessToken(),
+            'Content-Type' => 'application/json',
+        ])->post($url, $params);
+
+        if ($response->successful()) {
+            \Log::info('API Response', $response->json()); // Log the full response
+            return $this->transformResponse($response->json());
+        }
+
+        throw new \Exception('Error fetching foods: ' . $response->body());
+    }
+
+    private function transformResponse($data)
+    {
+        $items = [];
+        foreach ($data['eaten_foods'] ?? [] as $food) {
+            $items[] = [
+                'id' => $food['food_id'],
+                'name' => $food['food_name'],
+                'calories' => $food['calories'] ?? 'Unknown',
+            ];
+        }
+        return $items;
+    }
 
     // Search recipes by recipe ID 
     public function getRecipeById($recipeId)

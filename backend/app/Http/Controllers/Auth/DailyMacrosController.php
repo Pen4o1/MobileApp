@@ -15,6 +15,11 @@ class DailyMacrosController extends Controller
             'consumed_cal' => 'required|numeric|min:1',
         ]);
         
+        if($validate)
+        {
+            return response()->json(['error' => 'Invalid request'], 400);
+        }
+
         $user = Auth::user();
         $date = Carbon::today();
     
