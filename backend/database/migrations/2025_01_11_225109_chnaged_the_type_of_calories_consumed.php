@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shopping_lists', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('daily_cal', function (Blueprint $table) {
+            $table->integer('calories_consumed')->change();
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shopping_lists');
+        Schema::table('daily_cal', function (Blueprint $table) {
+            //
+        });
     }
 };

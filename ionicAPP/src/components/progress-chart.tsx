@@ -16,7 +16,7 @@ const ProgressChart: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'http://127.0.0.1:8000/api/get-daily-macros',
+          'http://127.0.0.1:8000/api/get/daily/macros',
           {
             method: 'GET',
             credentials: 'include',

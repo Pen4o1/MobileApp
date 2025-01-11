@@ -11,6 +11,9 @@ class DailyCal extends Model
         'user_id',
         'date',
         'calories_consumed',
+        'fat_consumed',
+        'protein_consumed',
+        'carbohydrate_consumed',
     ];
 
     public function user()

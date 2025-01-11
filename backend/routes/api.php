@@ -60,8 +60,8 @@ Route::middleware([JwtCookieMiddleware::class])->group(function () {
     Route::get('/profile-status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
     Route::post('/update-profile', [ProfileCompleteCotroller::class, 'completeProfile']);
     Route::post('/save-goal', [GoalController::class, 'saveGoal']);
-    Route::post('/save-daily-macros', [DailyMacrosController::class, 'storeCal']);
-    Route::get('/get-daily-macros', [DailyMacrosController::class, 'getDailyCal']);
+    Route::post('/save/daily/macros', [DailyMacrosController::class, 'storeCal']);
+    Route::get('/get/daily/macros', [DailyMacrosController::class, 'getDailyMacros']);
     Route::post('/generate/meal/plan', [MealPlanerController::class, 'generateMealPlan']);
     Route::get('/get/meal/plan', [MealPlanerController::class, 'getMealPlan']); 
     Route::get('/get/shopping/list', [ShoppingListController::class, 'getShoppingPlan']);
