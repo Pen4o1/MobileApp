@@ -14,6 +14,7 @@ import {
   IonToggle,
 } from '@ionic/react'
 import type { ToggleCustomEvent } from '@ionic/react';
+import { useHistory } from 'react-router-dom'
 import { pencil, settings, logOut } from 'ionicons/icons'
 
 import '../../components/styles/profile-style.css'
@@ -21,6 +22,41 @@ import '../../theme/variables.css'
 
 const MyProfile: React.FC = () => {
   const [themeToggle, setThemeToggle] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+    const history = useHistory()
+  
+     
+    
+      const validateToken = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:8000/api/validate-token', {
+            method: 'POST',
+            credentials: 'include',
+          })
+    
+          if (response.ok) {
+            const data = await response.json()
+            if (data.valid) {
+              setIsAuthenticated(true)
+            } else {
+              history.push('/login')
+            }
+          } else {
+            history.push('/login')
+          }
+        } catch (error) {
+          console.error('Token validation failed:', error)
+          history.push('/login')
+        }
+      }
+    
+      useEffect(() => {
+        validateToken()
+      }, [history])
+    
+      if (!isAuthenticated) {
+        return null
+      }
   
     // to listen for the toggle
     const toggleChange = (event: ToggleCustomEvent) => {

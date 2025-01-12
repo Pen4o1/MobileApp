@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import './styles/home.css';
 
-const COLORS = ['#FFBB28', '#0088FE', '#00C49F']; 
+const COLORS = ['#FFBB28', '#0088FE', '#00C49F'];
 
 const MacrosChart: React.FC = () => {
   const [data, setData] = useState([
@@ -31,13 +31,23 @@ const MacrosChart: React.FC = () => {
 
         const result = await response.json();
 
-        const formattedData = [
+        const fetchedData = [
           { name: 'Fats', value: result.fat_consumed },
           { name: 'Carbs', value: result.carbohydrate_consumed },
           { name: 'Proteins', value: result.protein_consumed },
         ];
 
-        setData(formattedData);
+        // Check if all values are zero, and if so, set a demo dataset
+        const isAllZero = fetchedData.every((item) => item.value === 0);
+        if (isAllZero) {
+          setData([
+            { name: 'Fats', value: 30 },
+            { name: 'Carbs', value: 50 },
+            { name: 'Proteins', value: 20 },
+          ]);
+        } else {
+          setData(fetchedData);
+        }
       } catch (error: any) {
         setError(error.message || 'An error occurred.');
       }
@@ -46,7 +56,6 @@ const MacrosChart: React.FC = () => {
     fetchData();
   }, []);
 
-  //this doesnr work for some reason
   const handleClick = (data: any, index: number) => {
     setSelectedSegment(`${data.name}: ${data.value}`);
   };
