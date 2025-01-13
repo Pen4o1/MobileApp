@@ -23,7 +23,7 @@ const SetGoalModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   const handleSave = async () => {
     const payload = { goal, activityLevel }
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/save-goal', {
+      const response = await fetch('http://127.0.0.1:8000/api/save/goal', {
         method: 'POST',
         credentials: 'include',
         headers: {

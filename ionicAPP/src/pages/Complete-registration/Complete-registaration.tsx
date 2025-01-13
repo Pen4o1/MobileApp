@@ -36,7 +36,7 @@ const Profile: React.FC = () => {
       try {
         setLoading(true)
         const response = await fetch(
-          'http://127.0.0.1:8000/api/profile-status',
+          'http://127.0.0.1:8000/api/profile/status',
           {
             method: 'GET',
             credentials: 'include',
@@ -89,7 +89,7 @@ const Profile: React.FC = () => {
         gender,
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/update-profile', {
+      const response = await fetch('http://127.0.0.1:8000/api/update/profile', {
         method: 'POST',
         credentials: 'include',
         headers: {

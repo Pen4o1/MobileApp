@@ -39,7 +39,7 @@ const AddFood: React.FC = () => {
   
     const validateToken = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/validate-token', {
+        const response = await fetch('http://127.0.0.1:8000/api/validate/token', {
           method: 'POST',
           credentials: 'include',
         })

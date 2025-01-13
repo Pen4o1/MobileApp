@@ -18,6 +18,7 @@ use App\Http\Controllers\FatSecretController;
 use App\Http\Controllers\Auth\TestForRecipes;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\Auth\ShoppingListController;
+use App\Http\Controllers\Auth\ProfileController;
 
 
 Route::get('/recipes/search', [RecipeController::class, 'search']);
@@ -26,7 +27,7 @@ Route::post('/register', [RegisterController::class, 'Register']);
 Route::post('/login', [LoginController::class, 'Login']);
 Route::get('/foods/search', [FatSecretController::class, 'search']);
 
-Route::post('/validate-token', function (Request $request) {
+Route::post('/validate/token', function (Request $request) {
     try {
         $token = $request->cookie('jwt_token');
 
@@ -57,15 +58,16 @@ Route::post('/validate-token', function (Request $request) {
 });
 
 Route::middleware([JwtCookieMiddleware::class])->group(function () {
-    Route::get('/profile-status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
-    Route::post('/update-profile', [ProfileCompleteCotroller::class, 'completeProfile']);
-    Route::post('/save-goal', [GoalController::class, 'saveGoal']);
+    Route::get('/profile/status', [ProfileCompleteCotroller::class, 'getProfileStatus']);
+    Route::post('/update/profile', [ProfileCompleteCotroller::class, 'completeProfile']);
+    Route::post('/save/goal', [GoalController::class, 'saveGoal']);
     Route::post('/save/daily/macros', [DailyMacrosController::class, 'storeCal']);
     Route::get('/get/daily/macros', [DailyMacrosController::class, 'getDailyMacros']);
     Route::post('/generate/meal/plan', [MealPlanerController::class, 'generateMealPlan']);
     Route::get('/get/meal/plan', [MealPlanerController::class, 'getMealPlan']); 
     Route::get('/get/shopping/list', [ShoppingListController::class, 'getShoppingPlan']);
     Route::post('/get-meal', [TestForRecipes::class, 'getMeal']);
+    Route::get('/user/profile', [ProfileController::class, 'getProfile']);
 });
 
 
