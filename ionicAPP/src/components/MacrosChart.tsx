@@ -83,9 +83,11 @@ const MacrosChart: React.FC = () => {
         </PieChart>
       </ResponsiveContainer>
       {selectedSegment && (
-        <p className="segment-info">
-          You clicked on: <strong>{selectedSegment}</strong>
-        </p>
+        <div className="selected-segment-info">
+          <p className="segment-info">
+            You clicked on: <strong>{selectedSegment}</strong>
+          </p>
+        </div>
       )}
     </div>
   );

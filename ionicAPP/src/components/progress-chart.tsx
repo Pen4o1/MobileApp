@@ -88,9 +88,11 @@ const ProgressChart: React.FC = () => {
             y="50%"
             textAnchor="middle"
             dominantBaseline="middle"
-            className="progress-label"
+            className="progress-label" 
           >
             {Math.round(progress)}%
+          </text>
+          <text>
           </text>
         </RadialBarChart>
       </ResponsiveContainer>
