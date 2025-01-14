@@ -10,6 +10,10 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  build: {
+    outDir: 'dist', // Match this with capacitor.config.ts's webDir
+    emptyOutDir: true, // Clears the output directory before building
+  },
   test: {
     globals: true,
     environment: 'jsdom',
