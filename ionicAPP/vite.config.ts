@@ -11,7 +11,7 @@ export default defineConfig({
     legacy()
   ],
   build: {
-    outDir: 'dist', // Match this with capacitor.config.ts's webDir
+    outDir: 'www', // Match this with capacitor.config.ts's webDir
     emptyOutDir: true, // Clears the output directory before building
   },
   test: {
